@@ -5,10 +5,8 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     //Visible
-    public enum BulletType {Normal, Sniper, Fire, Explosive}
+    public enum BulletType {Normal, Sniper, Fire, Explosive, Piercing, Tasing}
     public BulletType currentType;
-    public enum SpecialProperty {None, Piercing, Tasing}
-    public SpecialProperty currentProperty;
     public float speed;
     public float lifeTime;
     public float impactForce;
@@ -16,6 +14,8 @@ public class Bullet : MonoBehaviour
     public float decreaseFactor;
     [Header("Fire Bullet Properties")]
     public GameObject fireEffect;
+    [Header("Tasing Bullet Properties")]
+    public GameObject electricEffect;
     [Header("Explosion Bullet Properties")]
     public GameObject explosionEffect;
     public float closeExplosionDamage;
@@ -87,8 +87,11 @@ public class Bullet : MonoBehaviour
 
             if (currentType == BulletType.Fire)
                 other.transform.GetComponent<Enemy>().CheckForFire(fireEffect);
+            
+            if (currentType == BulletType.Tasing)
+                other.transform.GetComponent<Enemy>().CheckForElectricity(electricEffect);
 
-            if (currentProperty != SpecialProperty.Piercing)        
+            if (currentType != BulletType.Piercing)        
                 destroying = true;
 
             else
@@ -99,5 +102,8 @@ public class Bullet : MonoBehaviour
                     piercedEnemies++;
             }
         }
+
+        else if (other.transform.CompareTag("Shield"))
+            destroying = true;
     }
 }

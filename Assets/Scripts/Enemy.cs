@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour
     public float reloadTime;
     public float damagePerSecond;
     public float fireDamageDuration;
+    public float electricEffectDuration;
     public Color tankColor;
     public SpriteRenderer tankSkin;
     public SpriteRenderer outline;
@@ -22,9 +23,14 @@ public class Enemy : MonoBehaviour
     //Invisible
     [HideInInspector]
     public bool fire;
-    GameObject instEffect;
+    bool stun;
+    bool electrify;
+    bool lookAtPlayer = true;
+    List<GameObject> instEffect = new List<GameObject>();
     float currentFireLifeTime;
     float currentFireDamageDuration;
+    float currentElectricEffectDuration;
+    float currentElectricReload;
     bool dead;
     bool generatedEffect;
     GameObject player;
@@ -35,6 +41,7 @@ public class Enemy : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         currentFireLifeTime = 1;
         currentFireDamageDuration = fireDamageDuration;
+        currentElectricEffectDuration = electricEffectDuration;
 
         SetTankColor();
     }
@@ -47,6 +54,8 @@ public class Enemy : MonoBehaviour
 
             if (fire)
                 SetOnFire();
+            
+            
         }
 
         else
@@ -59,8 +68,9 @@ public class Enemy : MonoBehaviour
     }
 
     void TankAI()
-    {
-        transform.right = player.transform.position - transform.position;
+    {   
+        if (lookAtPlayer)
+            transform.right = player.transform.position - transform.position;
 
         if (health <= 0)
             dead = true;
@@ -96,7 +106,7 @@ public class Enemy : MonoBehaviour
     void NoMoreUgh()
     {
         Vector2 tmpScale = this.transform.localScale;
-        this.GetComponent<CircleCollider2D>().enabled = false;
+        this.GetComponent<Collider2D>().enabled = false;
 
         if (tmpScale.x <= 0 && tmpScale.y <= 0)
         {
@@ -108,9 +118,19 @@ public class Enemy : MonoBehaviour
             }
 
             if (fire)
-            {
-                instEffect.transform.parent = null;
-                StartCoroutine(DestroyEffect());
+            {   
+                foreach (GameObject inst in instEffect)
+                    inst.transform.parent = null;
+
+                for (int i = 0; i < instEffect.Count; i++)
+                {
+                    if (instEffect[i].name == "FireEffect")
+                    {
+                        GameObject tmpF = instEffect[i];
+                        StartCoroutine(DestroyEffectAferTime(tmpF));
+                        break;
+                    }
+                }
             }
 
             Destroy(this.gameObject);
@@ -127,9 +147,18 @@ public class Enemy : MonoBehaviour
 
     public void FireEffect(GameObject effect)
     {
-        instEffect = Instantiate(effect, this.transform);
-        instEffect.transform.parent = this.transform;
-        instEffect.transform.localPosition = new Vector2(0f, 0f);
+        GameObject tmpEffect = Instantiate(effect, this.transform);
+        instEffect.Add(tmpEffect);
+        tmpEffect.transform.parent = this.transform;
+        tmpEffect.transform.localPosition = new Vector2(0f, 0f);
+    }
+
+    public void ElectricEffect(GameObject effect)
+    {
+        GameObject tmpEffect = Instantiate(effect, this.transform);
+        instEffect.Add(tmpEffect);
+        tmpEffect.transform.parent = this.transform;
+        tmpEffect.transform.localPosition = new Vector2(0f, 0f);
     }
 
     void SetOnFire()
@@ -138,7 +167,16 @@ public class Enemy : MonoBehaviour
         {
             fire = false;
             currentFireDamageDuration = fireDamageDuration;
-            StartCoroutine(DestroyEffect());
+
+            for (int i = 0; i < instEffect.Count; i++)
+            {
+                if (instEffect[i].name == "FireEffect")
+                {
+                    GameObject tmpF = instEffect[i];
+                    StartCoroutine(DestroyEffectAferTime(tmpF));
+                    break;
+                }
+            }
         }
 
         else
@@ -165,15 +203,113 @@ public class Enemy : MonoBehaviour
         else
             currentFireDamageDuration = fireDamageDuration;  
 
-        if (instEffect == null)      
+        if (!instEffect.Contains(effect))
             FireEffect(effect);
     }
 
-    IEnumerator DestroyEffect()
+    public void CheckForElectricity(GameObject effect)
     {
-        instEffect.GetComponent<ParticleSystem>().Stop();
+        if (!electrify && !stun)
+            if(CheckForRandomElectric())
+            {
+                SetElectricEffect();
+
+                if (!instEffect.Contains(effect))
+                    ElectricEffect(effect);
+            }
+        else
+            currentElectricEffectDuration = electricEffectDuration;
+    }
+
+    bool CheckForRandomElectric()
+    {
+        return (Random.value > 0.5);
+    }
+
+    void Electrified()
+    {
+        if (currentElectricEffectDuration < 0)
+        {
+            electrify = false;
+            //lookAtPlayer = true;
+            currentElectricEffectDuration = electricEffectDuration;
+
+            for (int i = 0; i < instEffect.Count; i++)
+            {
+                if (instEffect[i].name == "ElectricEffect")
+                {
+                    GameObject tmpE = instEffect[i];
+                    StartCoroutine(DestroyEffectAferTime(tmpE));
+                    break;
+                }
+            }
+        }
+
+        else
+        {
+            lookAtPlayer = false;
+
+            if (currentElectricReload < 0)
+            {
+                var thisRotation = transform.eulerAngles;
+                thisRotation.z = Random.Range(0f, 360f);
+                transform.eulerAngles = thisRotation;
+                currentElectricReload = 1f;
+            }
+
+            else
+                currentElectricReload -= Time.deltaTime;
+            
+            currentElectricEffectDuration -= Time.deltaTime;
+        }
+    }
+
+    void SetElectricEffect()
+    {
+        if (Random.value > 0.5)
+            electrify = true;
+        else
+            electrify = true;
+    }
+
+    void DestroyEffect(string effect)
+    {
+        GameObject tmpF = null;
+        GameObject tmpE = null;
+
+        switch(effect)
+        {
+            case "Fire":
+                for (int i = 0; i < instEffect.Count; i++)
+                {
+                    if (instEffect[i].name == "FireEffect")
+                    {
+                        tmpF = instEffect[i];
+                        StartCoroutine(DestroyEffectAferTime(tmpF));
+                        break;
+                    }
+                }
+            break;
+
+            case "Electric":
+                for (int i = 0; i < instEffect.Count; i++)
+                {
+                    if (instEffect[i].name == "FireEffect")
+                    {
+                        tmpE = instEffect[i];
+                        StartCoroutine(DestroyEffectAferTime(tmpE));
+                        break;
+                    }
+                }
+            break;
+        }
+    }
+
+    IEnumerator DestroyEffectAferTime(GameObject effectTo)
+    {
+        effectTo.GetComponent<ParticleSystem>().Stop();
 
         yield return new WaitForSeconds(1f);
-        Destroy(instEffect);
+        Destroy(effectTo);
     }
 }

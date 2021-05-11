@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: -7667455465603564403}
   - component: {fileID: 3734082315632765996}
   m_Layer: 8
-  m_Name: TasingBullet
+  m_Name: ElectricBullet
   m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79,18 +79,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfa7ea127bace6842a603753a3d2f71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentType: 1
-  speed: 75
+  currentType: 5
+  speed: 30
   lifeTime: 5
   impactForce: 1200
-  damage: 500
+  damage: 15
   decreaseFactor: 2
   fireEffect: {fileID: 0}
+  electricEffect: {fileID: 5801734997623631405, guid: efcc377dec191794583a1cdf26b2afd3, type: 3}
   explosionEffect: {fileID: 0}
   closeExplosionDamage: 0
   closeExplosionImpactForce: 0
   damagePerSecond: 0
   fireDamageDuration: 0
+  piercableEnemiesUntilDeath: 0
 --- !u!50 &-7667455465603564403
 Rigidbody2D:
   serializedVersion: 4

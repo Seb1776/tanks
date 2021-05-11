@@ -129,6 +129,14 @@ public class Flank : MonoBehaviour
                 bullet = Resources.Load<Bullet>("Prefabs/Bullets/SniperBullet");
             break;
 
+            case FlankType.Electric:
+                bullet = Resources.Load<Bullet>("Prefabs/Bullets/ElectricBullet");
+            break;
+
+            case FlankType.Piercing:
+                bullet = Resources.Load<Bullet>("Prefabs/Bullets/PiercingBullet");
+            break;
+
             default:
                 Debug.LogError("The bullet type couldn't be found; Current flank type: " + currentFlank);
             break;
