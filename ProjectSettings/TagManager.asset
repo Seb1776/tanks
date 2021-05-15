@@ -7,6 +7,9 @@ TagManager:
   - Enemy
   - Bullet
   - Shield
+  - EnemyBullet
+  - GameManager
+  - MusicManager
   layers:
   - Default
   - TransparentFX

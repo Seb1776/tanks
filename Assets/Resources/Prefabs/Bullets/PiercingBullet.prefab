@@ -217,18 +217,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfa7ea127bace6842a603753a3d2f71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentType: 1
-  speed: 75
+  currentType: 4
+  speed: 80
   lifeTime: 5
-  impactForce: 1200
-  damage: 500
+  impactForce: 1000
+  damage: 75
   decreaseFactor: 2
   fireEffect: {fileID: 0}
+  electricEffect: {fileID: 0}
   explosionEffect: {fileID: 0}
+  explosionRadius: 0
   closeExplosionDamage: 0
   closeExplosionImpactForce: 0
   damagePerSecond: 0
   fireDamageDuration: 0
+  piercableEnemiesUntilDeath: 2
 --- !u!50 &-7667455465603564403
 Rigidbody2D:
   serializedVersion: 4

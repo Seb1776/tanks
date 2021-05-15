@@ -5,26 +5,39 @@ using UnityEngine;
 public class Flank : MonoBehaviour
 {
     //Visible
+    public enum FlankPorter {Tank, Enemy}
+    public FlankPorter currentPorter;
     public enum FlankType {Normal, Fire, Explosive, Sniper, Electric, Piercing}
     public FlankType currentFlank;
-    public enum FireMode {Single, Burst, Auto}
+    public enum FireMode {Single, Burst, Auto, Electric}
     public FireMode currentFireMode;
     public Transform firePoint;
     public float reloadTime;
     public float recoil;
     [Header("Burst Fire Mode Properties")]
     public float bulletsPerReload;
+    [Header ("Auto Fire Magazine")]
+    public int bulletsInMag;
+    [Header ("Random Burst Electric Effect")]
+    public Vector2 burstBulletElectric;
+    [HideInInspector]
+    public bool burstElectric;
 
 
     //Invisible
     GameObject tank;
     int burstCycle;
+    int currentFiredShots;
     float originalRotation;
+    float randomBulletAmount;
+    float currentRandomBulletAmount;
     bool canShoot = true;
     bool burst;
+    bool createdAmount;
     Bullet bullet;
     float currentReloadTime;
     float currentBurstBulletPerSecond;
+    float autoTimeBtwShots;
 
 
     void Start()
@@ -34,6 +47,7 @@ public class Flank : MonoBehaviour
         tank = transform.parent.transform.parent.transform.parent.transform.parent.gameObject;
         currentReloadTime = reloadTime;
         originalRotation = firePoint.transform.eulerAngles.z;
+        currentFiredShots = bulletsInMag;
     }
 
     void Update()
@@ -43,16 +57,22 @@ public class Flank : MonoBehaviour
         
         if (burst)
             BurstShoot();
+        
+        if (burstElectric)
+            ShootStun();
     }
 
     public void Shoot()
     {
         if (canShoot)
         {
+            GameObject bulletPref = null;
+
             switch(currentFireMode)
             {
                 case FireMode.Single:
-                    GameObject bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
+                    bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
+                    AccomodateBullet(bulletPref);
                     ApplyRecoil();
                     canShoot = false;
                 break;
@@ -60,7 +80,41 @@ public class Flank : MonoBehaviour
                 case FireMode.Burst:
                     burst = true;
                 break;
+
+                case FireMode.Auto:
+                    if (currentFiredShots > 0)
+                    {
+                        if (autoTimeBtwShots <= 0)
+                        {
+                            bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
+                            AccomodateBullet(bulletPref);
+                            ApplyRecoil();
+                            currentFiredShots--;
+                            autoTimeBtwShots = 0.1f;
+                        }
+
+                        else
+                            autoTimeBtwShots -= Time.deltaTime;
+                    }
+
+                    else
+                        canShoot = false;
+                break;
             }
+        }
+    }
+
+    void AccomodateBullet(GameObject bullet)
+    {
+        switch (currentPorter)
+        {
+            case FlankPorter.Tank:
+                bullet.gameObject.tag = "Bullet";
+            break;
+
+            case FlankPorter.Enemy:
+                bullet.gameObject.tag = "EnemyBullet";
+            break;
         }
     }
 
@@ -76,6 +130,7 @@ public class Flank : MonoBehaviour
             if (currentBurstBulletPerSecond <= 0)
             {
                 GameObject bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
+                AccomodateBullet(bulletPref);
                 ApplyRecoil();
                 currentBurstBulletPerSecond = 0.4f;
                 burstCycle++;
@@ -95,6 +150,38 @@ public class Flank : MonoBehaviour
         }
     }
 
+    public void ShootStun()
+    {
+        if (!createdAmount)
+        {
+            randomBulletAmount = Random.Range(burstBulletElectric.x, burstBulletElectric.y);
+            currentRandomBulletAmount = randomBulletAmount;
+            burstCycle = (int)randomBulletAmount;
+            createdAmount = true;
+        }
+
+        for (int i = 0; i < randomBulletAmount; i++)
+        {
+            if (currentBurstBulletPerSecond <= 0)
+            {
+                GameObject bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
+                AccomodateBullet(bulletPref);
+                ApplyRecoil();
+                currentBurstBulletPerSecond = 1.5f;
+                burstCycle++;
+            }
+
+            else
+                currentBurstBulletPerSecond -= Time.deltaTime;
+        }
+
+        if (burstCycle >= randomBulletAmount)
+        {
+            burstCycle = 0;
+            createdAmount = false;
+        }
+    }
+
     void Reload()
     {
         burst = false;
@@ -103,6 +190,9 @@ public class Flank : MonoBehaviour
         {
             canShoot = true;
             currentReloadTime = reloadTime;
+
+            if (currentFireMode == FireMode.Auto)
+                currentFiredShots = bulletsInMag;
         }
 
         else

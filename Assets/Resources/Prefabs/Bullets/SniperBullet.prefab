@@ -80,14 +80,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentType: 1
-  currentProperty: 1
-  speed: 10
+  speed: 80
   lifeTime: 5
   impactForce: 1200
-  damage: 500
+  damage: 150
   decreaseFactor: 2
   fireEffect: {fileID: 0}
+  electricEffect: {fileID: 0}
   explosionEffect: {fileID: 0}
+  explosionRadius: 0
   closeExplosionDamage: 0
   closeExplosionImpactForce: 0
   damagePerSecond: 0

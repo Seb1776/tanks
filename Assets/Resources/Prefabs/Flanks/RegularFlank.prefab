@@ -157,12 +157,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 770a63f4705568c4ebfe665de8a78600, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentPorter: 0
   currentFlank: 0
   currentFireMode: 0
   firePoint: {fileID: 4647486289316973345}
   reloadTime: 0.7
   recoil: 500
   bulletsPerReload: 0
+  bulletsInMag: 0
+  burstBulletElectric: {x: 2, y: 4}
 --- !u!1 &6456440106295178440
 GameObject:
   m_ObjectHideFlags: 0

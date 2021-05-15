@@ -86,11 +86,14 @@ MonoBehaviour:
   damage: 800
   decreaseFactor: 2
   fireEffect: {fileID: 0}
-  explosionEffect: {fileID: 3416232650015156685, guid: 0c5f075ae8ee2c1459b12b5d648b2ac3, type: 3}
-  closeExplosionDamage: 0
-  closeExplosionImpactForce: 0
+  electricEffect: {fileID: 0}
+  explosionEffect: {fileID: 3187940173913349617, guid: 0c5f075ae8ee2c1459b12b5d648b2ac3, type: 3}
+  explosionRadius: 3
+  closeExplosionDamage: 400
+  closeExplosionImpactForce: 1800
   damagePerSecond: 0
   fireDamageDuration: 0
+  piercableEnemiesUntilDeath: 0
 --- !u!50 &-7667455465603564403
 Rigidbody2D:
   serializedVersion: 4

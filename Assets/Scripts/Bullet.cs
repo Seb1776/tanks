@@ -18,6 +18,7 @@ public class Bullet : MonoBehaviour
     public GameObject electricEffect;
     [Header("Explosion Bullet Properties")]
     public GameObject explosionEffect;
+    public float explosionRadius;
     public float closeExplosionDamage;
     public float closeExplosionImpactForce;
     [Header("Fire/Explosion Bullet Properties")]
@@ -77,33 +78,112 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other) 
     {
-        if (other.transform.CompareTag("Enemy"))
+        if (other.transform.CompareTag("Enemy") && !this.gameObject.CompareTag("EnemyBullet"))
         {
-            if (currentType == BulletType.Explosive)
-                Instantiate(explosionEffect, transform);
-
             other.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * impactForce);
-            other.transform.GetComponent<Enemy>().MakeDamage(damage);
+            other.transform.GetComponent<EnemyTank>().MakeDamage(damage);
 
-            if (currentType == BulletType.Fire)
-                other.transform.GetComponent<Enemy>().CheckForFire(fireEffect);
-            
-            if (currentType == BulletType.Tasing)
-                other.transform.GetComponent<Enemy>().CheckForElectricity(electricEffect);
-
-            if (currentType != BulletType.Piercing)        
-                destroying = true;
-
-            else
+            switch (currentType)
             {
-                if (piercedEnemies >= piercableEnemiesUntilDeath)
+                case BulletType.Explosive:
+                    GameObject prefBullet = Instantiate(explosionEffect, transform);
+                    prefBullet.transform.parent = null;
+
+                    Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
+
+                    foreach (Collider2D affected in colliders)
+                    {
+                        if (affected.GetComponent<EnemyTank>() != null)
+                        {
+                            affected.GetComponent<EnemyTank>().MakeDamage(closeExplosionDamage);
+                            affected.GetComponent<Rigidbody2D>().AddForce(-transform.right * closeExplosionImpactForce);
+                        }
+                    }
+
                     destroying = true;
-                else
-                    piercedEnemies++;
+                break;
+
+                case BulletType.Fire:
+                    other.transform.GetComponent<EnemyTank>().CheckForFire(fireEffect);
+                    destroying = true;
+                break;
+
+                case BulletType.Tasing:
+                    other.transform.GetComponent<EnemyTank>().CheckForElectricity(electricEffect);
+                    destroying = true;
+                break;
+
+                case BulletType.Piercing:
+                    if (piercedEnemies >= piercableEnemiesUntilDeath)
+                        destroying = true;
+                    else
+                        piercedEnemies++;
+                break;
+
+                default:
+                    destroying = true;
+                break;
             }
         }
 
-        else if (other.transform.CompareTag("Shield"))
+        else if (other.transform.CompareTag("Player") && !this.gameObject.CompareTag("Bullet"))
+        {
+            other.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * impactForce);
+            other.transform.GetComponent<Tank>().MakeDamage(damage);
+
+            switch (currentType)
+            {
+                case BulletType.Explosive:
+                    GameObject prefBullet = Instantiate(explosionEffect, transform);
+                    prefBullet.transform.parent = null;
+
+                    Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
+
+                    foreach (Collider2D affected in colliders)
+                    {
+                        if (affected.GetComponent<Tank>() != null)
+                        {
+                            affected.GetComponent<Tank>().MakeDamage(closeExplosionDamage);
+                            affected.GetComponent<Rigidbody2D>().AddForce(-transform.right * closeExplosionImpactForce);
+                        }
+                    }
+
+                    destroying = true;
+                break;
+
+                case BulletType.Fire:
+                    other.transform.GetComponent<Tank>().CheckForFire(fireEffect);
+                    destroying = true;
+                break;
+
+                case BulletType.Tasing:
+                    other.transform.GetComponent<Tank>().CheckForElectricity(electricEffect);
+                    destroying = true;
+                break;
+
+                case BulletType.Piercing:
+                    if (piercedEnemies >= piercableEnemiesUntilDeath)
+                        destroying = true;
+                    else
+                        piercedEnemies++;
+                break;
+
+                default:
+                    destroying = true;
+                break;
+            }
+        }
+
+        if (other.transform.CompareTag("Shield") && !this.CompareTag("EnemyBullet"))
             destroying = true;
+    }
+
+    void OnDrawGizmos()
+    {   
+        if (currentType == BulletType.Explosive)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, explosionRadius);
+        }
     }
 }

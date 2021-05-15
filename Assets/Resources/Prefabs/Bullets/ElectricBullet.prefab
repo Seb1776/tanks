@@ -80,9 +80,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentType: 5
-  speed: 30
+  speed: 25
   lifeTime: 5
-  impactForce: 1200
+  impactForce: 300
   damage: 15
   decreaseFactor: 2
   fireEffect: {fileID: 0}
