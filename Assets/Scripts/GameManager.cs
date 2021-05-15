@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,8 +15,18 @@ public class GameManager : MonoBehaviour
     public float assaultStageDuration;
     public bool canSpawn;
 
+    [Header("UI")]
+    public Animator assaultBanner;
+    public Color assaultBannerOverdue;
+    public Color cornerColorOverdue;
+    public Image assaultBannerBack;
+    public Text assaultPhaseText;
+    public Image[] corners;
+
 
     //Invisible
+    Color originalAssaultBannerColor;
+    Color originalCornerColor;
     public int limitLightHeavyEnemy;
     public int limitShieldEnemy;
     public int limitTaserEnemy;
@@ -42,15 +53,49 @@ public class GameManager : MonoBehaviour
         currentControlStageDuration = controlStageDuration;
         currentBuildupStageDuration = buildupStageDuration;
         currentAssaultStageDuration = assaultStageDuration;
+
+        originalAssaultBannerColor = assaultBannerBack.color;
+
+        foreach (Image corner in corners)
+            originalCornerColor = corner.color;
     }
 
     void Update()
     {
         WaveStagesBehaviour();
+        UI();
 
         if (canSpawn)
             foreach(Spawner spawn in spawner)
                 spawn.canSpawn = true;
+        else
+            foreach(Spawner spawn in spawner)
+                spawn.canSpawn = false;
+    }
+
+    void UI()
+    {
+        if (currentStage == WaveStages.Control || currentStage == WaveStages.Buildup)
+            assaultBanner.SetBool("show", false);
+        else
+            assaultBanner.SetBool("show", true);
+        
+        if (currentAssaultStageDuration <= 15)
+        {
+            assaultBannerBack.color = assaultPhaseText.color = assaultBannerOverdue;
+            assaultPhaseText.text = "/// OVERDUE ///";
+
+            foreach(Image corner in corners)
+                corner.color = cornerColorOverdue;
+        }
+
+        else
+        {
+            assaultBannerBack.color = assaultPhaseText.color = originalAssaultBannerColor;
+
+            foreach(Image corner in corners)
+                corner.color = originalCornerColor;
+        }
     }
 
     public void SetLimit(string faction)
@@ -125,6 +170,7 @@ public class GameManager : MonoBehaviour
                     currentAssaultStageDuration = assaultStageDuration;
                     music.ResetMusic();
                     currentStage = WaveStages.Control;
+                    canSpawn = false;
                 }
 
                 else

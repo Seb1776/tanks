@@ -34,10 +34,12 @@ public class Bullet : MonoBehaviour
     bool fire;
     float currentFireLifeTime;
     float currentFireDamageDuration;
+    Tank player;
 
 
     void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Tank>();
         currentLifeTime = lifeTime;
         currentFireDamageDuration = fireDamageDuration;
     }
@@ -82,6 +84,7 @@ public class Bullet : MonoBehaviour
         {
             other.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * impactForce);
             other.transform.GetComponent<EnemyTank>().MakeDamage(damage);
+            player.Heal(damage / 6);
 
             switch (currentType)
             {

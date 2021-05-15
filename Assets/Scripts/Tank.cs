@@ -116,6 +116,12 @@ public class Tank : MonoBehaviour
             currentHealth -= damage;
     }
 
+    public void Heal(float amount)
+    {
+        if (currentHealth < health)
+            currentHealth += amount;
+    }
+
     void UI()
     {
         healthSlider.value = currentHealth;
