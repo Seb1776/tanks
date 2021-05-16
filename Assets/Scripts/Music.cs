@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.Universal;
 
 public class Music : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class Music : MonoBehaviour
 
     [Header("Wave Music Properties")]
     public Track currentTrack;
+    public Light2D backgroundLight;
 
 
     //Invisible
@@ -37,6 +39,13 @@ public class Music : MonoBehaviour
     float currentBuildupIniDuration;
     float assaultIniDuration;
     float currentAssaultIniDuration;
+    float updateStep = .1f;
+    int sampleDataLength = 1024 * 2;
+    float currentUpdateTime = 0f;
+    float clipLoudness;
+    float[] clipSampleData;
+    int fullLength;
+    float currentSongLength;
     AudioSource source;
     GameManager gameManager;
 
@@ -44,6 +53,7 @@ public class Music : MonoBehaviour
     {
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         source = GetComponent<AudioSource>();
+        clipSampleData = new float[sampleDataLength];
 
         FindTracks();
     }
@@ -51,6 +61,36 @@ public class Music : MonoBehaviour
     void Update()
     {
         MusicBehaviour();
+    }
+
+    void FixedUpdate()
+    {
+        if (gameManager.currentStage == GameManager.WaveStages.Assault)
+            VisualizeLights();
+    }
+
+    void VisualizeLights()
+    {
+        currentUpdateTime += Time.deltaTime;
+
+        if (currentUpdateTime >= updateStep)
+        {
+            currentUpdateTime = 0f;
+            source.clip.GetData(clipSampleData, source.timeSamples);
+            clipLoudness = 0f;
+
+            foreach (var sample in clipSampleData)
+            {
+                clipLoudness += Mathf.Abs(sample);
+            }
+
+            clipLoudness /= sampleDataLength;
+        }
+
+        backgroundLight.intensity = clipLoudness * 2;
+
+        /*if (backgroundLight.intensity > 1f)
+            backgroundLight.intensity = 1f;*/
     }
 
     void FindTracks()

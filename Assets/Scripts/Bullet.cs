@@ -84,7 +84,9 @@ public class Bullet : MonoBehaviour
         {
             other.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * impactForce);
             other.transform.GetComponent<EnemyTank>().MakeDamage(damage);
-            player.Heal(damage / 6);
+
+            if (player != null)
+                player.Heal(damage / 6);
 
             switch (currentType)
             {
@@ -179,6 +181,13 @@ public class Bullet : MonoBehaviour
 
         if (other.transform.CompareTag("Shield") && !this.CompareTag("EnemyBullet"))
             destroying = true;
+        
+        if (other.transform.CompareTag("Shape") && !this.CompareTag("EnemyBullet"))
+        {
+            other.GetComponent<Shape>().MakeDamage(damage);
+            other.GetComponent<Rigidbody2D>().AddForce(transform.right * impactForce);
+            destroying = true;
+        }
     }
 
     void OnDrawGizmos()

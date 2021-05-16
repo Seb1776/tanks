@@ -209,7 +209,7 @@ public class Tank : MonoBehaviour
 
     bool CheckForRandomElectric()
     {
-        return (Random.value > 0.5);
+        return (Random.value > 0.7);
     }
 
     void Electrified()

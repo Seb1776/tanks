@@ -14,6 +14,7 @@ public class EnemyTank : MonoBehaviour
     public enum AttackMode {Spinfire, DirectHit}
     public AttackMode currentAttack;
     public float health;
+    public int score;
     public float moveSpeed;
     public float attackDistance;
     public float recognizeDistance;
@@ -490,6 +491,8 @@ public class EnemyTank : MonoBehaviour
                 break;
             }
 
+            gameManager.score += score;
+
             Destroy(this.gameObject);
         }
 
@@ -587,7 +590,7 @@ public class EnemyTank : MonoBehaviour
 
     bool CheckForRandomElectric()
     {
-        return (Random.value > 0.5);
+        return (Random.value > 0.7);
     }
 
     void Electrified()

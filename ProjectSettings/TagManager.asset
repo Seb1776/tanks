@@ -10,6 +10,7 @@ TagManager:
   - EnemyBullet
   - GameManager
   - MusicManager
+  - Shape
   layers:
   - Default
   - TransparentFX
@@ -46,4 +47,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 3289180841
+    locked: 0
+  - name: EverythingElse
+    uniqueID: 1911652125
     locked: 0

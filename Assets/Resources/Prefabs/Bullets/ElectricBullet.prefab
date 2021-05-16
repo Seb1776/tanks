@@ -88,6 +88,7 @@ MonoBehaviour:
   fireEffect: {fileID: 0}
   electricEffect: {fileID: 5801734997623631405, guid: efcc377dec191794583a1cdf26b2afd3, type: 3}
   explosionEffect: {fileID: 0}
+  explosionRadius: 0
   closeExplosionDamage: 0
   closeExplosionImpactForce: 0
   damagePerSecond: 0
@@ -198,8 +199,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1911652125
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 980d057bd2207e04a819743379f76222, type: 3}
   m_Color: {r: 0, g: 0.6911554, b: 0.7372549, a: 1}
@@ -280,8 +281,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1911652125
+  m_SortingLayer: 2
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: 980d057bd2207e04a819743379f76222, type: 3}
   m_Color: {r: 0, g: 0.3764706, b: 0.36518088, a: 1}
@@ -363,8 +364,8 @@ TrailRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1911652125
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Time: 5
   m_Parameters:
