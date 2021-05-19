@@ -327,8 +327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d0f2383158a2a4581d17e0f4577846, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentRegion: 3
-  currentType: 0
+  currentRegion: 4
   currentState: 0
   currentAttack: 1
   health: 50
@@ -339,6 +338,7 @@ MonoBehaviour:
   stopDistance: 4.5
   rotationSpeed: 0
   lookSpeed: 175
+  moveSpace: 1.75
   flankOrigin: {fileID: 4432126916503290967}
   damagePerSecond: 5
   fireDamageDuration: 5
@@ -396,7 +396,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!60 &4432126915617198076
 PolygonCollider2D:
   m_ObjectHideFlags: 0

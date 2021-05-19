@@ -83,7 +83,7 @@ MonoBehaviour:
   speed: 80
   lifeTime: 5
   impactForce: 1200
-  damage: 150
+  damage: 70
   decreaseFactor: 2
   fireEffect: {fileID: 0}
   electricEffect: {fileID: 0}
@@ -94,6 +94,12 @@ MonoBehaviour:
   damagePerSecond: 0
   fireDamageDuration: 0
   piercableEnemiesUntilDeath: 1
+  smokeDuration: 0
+  smokeRadius: 0
+  dmgPerSecond: 0
+  smokeEffect: {fileID: 0}
+  skin: {fileID: 0}
+  skinOut: {fileID: 0}
 --- !u!50 &-7667455465603564403
 Rigidbody2D:
   serializedVersion: 4

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     //Visible
-    public enum BulletType {Normal, Sniper, Fire, Explosive, Piercing, Tasing}
+    public enum BulletType {Normal, Sniper, Fire, Explosive, Piercing, Tasing, Smoke}
     public BulletType currentType;
     public float speed;
     public float lifeTime;
@@ -26,14 +26,24 @@ public class Bullet : MonoBehaviour
     public float fireDamageDuration;
     [Header("Piercing Bullet Properties")]
     public int piercableEnemiesUntilDeath;
+    [Header("Smoke Bullet Properties")]
+    public float smokeDuration;
+    public float smokeRadius;
+    public float dmgPerSecond;
+    public GameObject smokeEffect;
+    public GameObject skin;
+    public GameObject skinOut;
 
     //Invisible
     int piercedEnemies;
     float currentLifeTime;
     bool destroying;
     bool fire;
+    bool createdEffect;
     float currentFireLifeTime;
+    float currentSmokeTimeBtwDamages;
     float currentFireDamageDuration;
+    float currentSmokeDuration;
     Tank player;
 
 
@@ -42,17 +52,21 @@ public class Bullet : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Tank>();
         currentLifeTime = lifeTime;
         currentFireDamageDuration = fireDamageDuration;
+        currentSmokeDuration = smokeDuration;
     }
 
     void Update()
     {   
         if (!destroying)
             if (currentLifeTime <= 0)
-                DestroyBullet();
+                DestroyBullet(false);
             else
                 currentLifeTime -= Time.deltaTime;
         else
-            DestroyBullet();
+            if (currentType == BulletType.Smoke)
+                DestroyBullet(true);
+            else
+                DestroyBullet(false);
     }
     
     void FixedUpdate()
@@ -61,21 +75,85 @@ public class Bullet : MonoBehaviour
             transform.Translate(Vector3.right * Time.deltaTime * speed);
     }
 
-    void DestroyBullet()
+    IEnumerator DestroyEffect(float delay, ParticleSystem effect)
     {
-        Vector2 tmpLocalScale = this.transform.localScale;
-        this.GetComponent<CircleCollider2D>().enabled = false;
+        yield return new WaitForSeconds(delay);
+        effect.Stop();
+    }
 
-        if (tmpLocalScale.x > 0 && tmpLocalScale.y > 0)
+    void DestroyBullet(bool onContact)
+    {   
+        if (currentType == BulletType.Smoke || onContact)
         {
-            tmpLocalScale.x -= Time.deltaTime * decreaseFactor;
-            tmpLocalScale.y -= Time.deltaTime * decreaseFactor;
+            skin.SetActive(false);
+            skinOut.SetActive(false);
+            GetComponent<Collider2D>().enabled = false;
+
+            if (!createdEffect)
+            {
+                GameObject tmp = Instantiate(smokeEffect, transform);
+                StartCoroutine(DestroyEffect(smokeDuration - .5f, tmp.GetComponent<ParticleSystem>()));
+                createdEffect = true;
+            }
+
+            if (currentSmokeDuration <= 0f)
+            {
+                Vector2 tmpLocalScale = this.transform.localScale;
+                this.GetComponent<CircleCollider2D>().enabled = false;
+
+                if (tmpLocalScale.x > 0 && tmpLocalScale.y > 0)
+                {
+                    tmpLocalScale.x -= Time.deltaTime * decreaseFactor;
+                    tmpLocalScale.y -= Time.deltaTime * decreaseFactor;
+                }
+
+                else
+                    Destroy(this.gameObject);
+
+                this.transform.localScale = tmpLocalScale;
+            }
+
+            else
+            {
+                if (currentSmokeTimeBtwDamages <= 0f)
+                {
+                    Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, smokeRadius);
+
+                    foreach(Collider2D near in colliders)
+                    {
+                        if (near.GetComponent<EnemyTank>() != null)
+                            near.GetComponent<EnemyTank>().MakeDamage(dmgPerSecond);
+                        
+                        if (near.GetComponent<Tank>() != null)
+                            near.GetComponent<Tank>().MakeDamage(dmgPerSecond);
+                    }
+
+                    currentSmokeTimeBtwDamages = 1f;
+                }
+
+                else
+                    currentSmokeTimeBtwDamages -= Time.deltaTime;
+
+                currentSmokeDuration -= Time.deltaTime;
+            }
         }
 
-        else
-            Destroy(this.gameObject);
+        else if (currentType != BulletType.Smoke || !onContact)
+        {
+            Vector2 tmpLocalScale = this.transform.localScale;
+            this.GetComponent<CircleCollider2D>().enabled = false;
 
-        this.transform.localScale = tmpLocalScale;
+            if (tmpLocalScale.x > 0 && tmpLocalScale.y > 0)
+            {
+                tmpLocalScale.x -= Time.deltaTime * decreaseFactor;
+                tmpLocalScale.y -= Time.deltaTime * decreaseFactor;
+            }
+
+            else
+                Destroy(this.gameObject);
+
+            this.transform.localScale = tmpLocalScale;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other) 
@@ -86,7 +164,7 @@ public class Bullet : MonoBehaviour
             other.transform.GetComponent<EnemyTank>().MakeDamage(damage);
 
             if (player != null)
-                player.Heal(damage / 6);
+                player.Heal(damage / 2.5f);
 
             switch (currentType)
             {
@@ -196,6 +274,12 @@ public class Bullet : MonoBehaviour
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(transform.position, explosionRadius);
+        }
+
+        if (currentType == BulletType.Smoke)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, smokeRadius);
         }
     }
 }

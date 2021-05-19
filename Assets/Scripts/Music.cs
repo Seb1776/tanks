@@ -8,9 +8,9 @@ public class Music : MonoBehaviour
     //Visible
     public enum Track
     {
-        I_Will_Give_You_My_All_2017, 
+        IWillGiveYouMyAll2017, 
         DONACDUM,
-        Code_Silver,
+        CodeSilver2012,
         Profondo
     }
 
@@ -61,12 +61,9 @@ public class Music : MonoBehaviour
     void Update()
     {
         MusicBehaviour();
-    }
 
-    void FixedUpdate()
-    {
-        if (gameManager.currentStage == GameManager.WaveStages.Assault)
-            VisualizeLights();
+        /**if (gameManager.currentStage == GameManager.WaveStages.Assault)
+            VisualizeLights();*/
     }
 
     void VisualizeLights()
@@ -97,7 +94,7 @@ public class Music : MonoBehaviour
     {
         switch (currentTrack)
         {
-            case Track.I_Will_Give_You_My_All_2017:
+            case Track.IWillGiveYouMyAll2017:
                 starter = "diamond";
             break;
 
@@ -105,7 +102,7 @@ public class Music : MonoBehaviour
                 starter = "donacdum";
             break;
 
-            case Track.Code_Silver:
+            case Track.CodeSilver2012:
                 starter = "blood";
             break;
 
@@ -139,6 +136,8 @@ public class Music : MonoBehaviour
         playedControlIni = false;
         playedBuildupIni = false;
         playedAssaultIni = false;
+        currentControlIniDuration = controlIniDuration;
+        currentBuildupIniDuration = buildupIniDuration;
     }
 
     void MusicBehaviour()
@@ -185,6 +184,7 @@ public class Music : MonoBehaviour
                         source.clip = control;
                         source.loop = true;
                         source.Play();
+                        currentControlIniDuration = controlIniDuration;
                         playedControl = true;
                     }
                 }
@@ -205,7 +205,7 @@ public class Music : MonoBehaviour
                     else
                     {   
                         if (!playedBuildup)
-                        {  
+                        {
                             if (currentBuildupIniDuration <= 0)
                             {
                                 if (!playedBuildup)
@@ -213,7 +213,6 @@ public class Music : MonoBehaviour
                                     source.clip = buildup;
                                     source.loop = true;
                                     source.Play();
-                                    currentBuildupIniDuration = buildupIniDuration;
                                     playedBuildup = true;
                                 }
                             }
@@ -231,6 +230,7 @@ public class Music : MonoBehaviour
                         source.clip = buildup;
                         source.loop = true;
                         source.Play();
+                        currentBuildupIniDuration = buildupIniDuration;
                         playedBuildup = true;
                     }
                 }

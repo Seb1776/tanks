@@ -557,10 +557,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentRegion: 0
-  currentType: 0
   currentState: 0
   currentAttack: 1
-  health: 50
+  health: 15
   score: 50
   moveSpeed: 6
   attackDistance: 6.5
@@ -568,6 +567,7 @@ MonoBehaviour:
   stopDistance: 4.5
   rotationSpeed: 0
   lookSpeed: 175
+  moveSpace: 1.7
   flankOrigin: {fileID: 7715268925083876328}
   damagePerSecond: 9
   fireDamageDuration: 2
@@ -625,7 +625,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!58 &7715268925938528835
 CircleCollider2D:
   m_ObjectHideFlags: 0

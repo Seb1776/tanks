@@ -7,7 +7,7 @@ public class Flank : MonoBehaviour
     //Visible
     public enum FlankPorter {Tank, Enemy}
     public FlankPorter currentPorter;
-    public enum FlankType {Normal, Fire, Explosive, Sniper, Electric, Piercing}
+    public enum FlankType {Normal, Fire, Explosive, Sniper, Electric, Piercing, Smoker}
     public FlankType currentFlank;
     public enum FireMode {Single, Burst, Auto, Electric}
     public FireMode currentFireMode;
@@ -225,6 +225,10 @@ public class Flank : MonoBehaviour
 
             case FlankType.Piercing:
                 bullet = Resources.Load<Bullet>("Prefabs/Bullets/PiercingBullet");
+            break;
+
+            case FlankType.Smoker:
+                bullet = Resources.Load<Bullet>("Prefabs/Bullets/SmokerBullet");
             break;
 
             default:

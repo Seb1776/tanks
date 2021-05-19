@@ -98,8 +98,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1911652125
+  m_SortingLayer: 2
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: e82e7821980b302498f16ff23cdff33d, type: 3}
   m_Color: {r: 0.31132078, g: 0.31132078, b: 0.31132078, a: 1}
@@ -166,6 +166,7 @@ MonoBehaviour:
   bulletsPerReload: 0
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
+  burstElectric: 0
 --- !u!1 &6456440106295178440
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,8 +267,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1911652125
+  m_SortingLayer: 2
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: e82e7821980b302498f16ff23cdff33d, type: 3}
   m_Color: {r: 0.41509432, g: 0.41509432, b: 0.41509432, a: 1}

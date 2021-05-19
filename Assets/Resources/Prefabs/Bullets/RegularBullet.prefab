@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentType: 0
-  speed: 10
+  speed: 25
   lifeTime: 5
   impactForce: 200
   damage: 10
@@ -232,6 +232,12 @@ MonoBehaviour:
   damagePerSecond: 0
   fireDamageDuration: 0
   piercableEnemiesUntilDeath: 0
+  smokeDuration: 0
+  smokeRadius: 0
+  dmgPerSecond: 0
+  smokeEffect: {fileID: 0}
+  skin: {fileID: 0}
+  skinOut: {fileID: 0}
 --- !u!50 &-7667455465603564403
 Rigidbody2D:
   serializedVersion: 4

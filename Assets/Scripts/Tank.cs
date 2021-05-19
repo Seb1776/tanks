@@ -12,6 +12,7 @@ public class Tank : MonoBehaviour
     public float fireDamageDuration;
     public float damagePerSecond;
     public float electricEffectDuration;
+    public float grazeTime;
     public Color tankColor;
     public SpriteRenderer tankSkin;
     public SpriteRenderer outline;
@@ -25,14 +26,16 @@ public class Tank : MonoBehaviour
     //Invisible
     public bool fire;
     public bool canMove;
+    float currentGrazeTime;
     bool electrify;
     bool stun;
+    bool grazed;
     float currentFireDamageDuration;
     float currentFireLifeTime;
     float currentElectricEffectDuration;
     List<float> flanksRecoil = new List<float>();
     List<GameObject> instEffect = new List<GameObject>();
-    float currentHealth;
+    public float currentHealth;
     float timeBtwElectricEffect;
     Vector2 mv;
     Vector2 mp;
@@ -47,6 +50,7 @@ public class Tank : MonoBehaviour
         currentFireDamageDuration = fireDamageDuration;
         currentElectricEffectDuration = electricEffectDuration;
         healthSlider.maxValue = health;
+        currentGrazeTime = grazeTime;
 
         SetTankColor();
         SetTankFlanks();
@@ -60,6 +64,18 @@ public class Tank : MonoBehaviour
             mv.y = Input.GetAxisRaw("Vertical");
 
             mp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            if (grazed)
+            {
+                if (currentGrazeTime <= 0f)
+                {
+                    currentGrazeTime = grazeTime;
+                    grazed = false;
+                }
+
+                else
+                    currentGrazeTime -= Time.deltaTime;
+            }
         }
 
         else
@@ -109,11 +125,14 @@ public class Tank : MonoBehaviour
     }
 
     public void MakeDamage(float damage)
-    {
-        if (currentHealth <= 0)
-            Debug.Log("No more UGH *sad face*");
-        else
-            currentHealth -= damage;
+    {   
+        if (!grazed)
+        {
+            if (currentHealth <= 0)
+                Debug.Log("No more UGH *sad face*");
+            else
+                currentHealth -= damage;
+        }
     }
 
     public void Heal(float amount)
@@ -209,7 +228,7 @@ public class Tank : MonoBehaviour
 
     bool CheckForRandomElectric()
     {
-        return (Random.value > 0.7);
+        return (Random.value > 0.9);
     }
 
     void Electrified()

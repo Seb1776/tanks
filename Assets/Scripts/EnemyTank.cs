@@ -5,10 +5,8 @@ using UnityEngine;
 public class EnemyTank : MonoBehaviour
 {
     //Visible
-    public enum EnemyFaction {LightHeavy, Shield, Taser, Medic, BulldozerLight, BulldozerMedium, BulldozerHeavy}
+    public enum EnemyFaction {LightHeavy, Shield, Sniper, Taser, Medic, Smoker, BulldozerLight, BulldozerMedium, BulldozerHeavy}
     public EnemyFaction currentRegion;
-    public enum EnemyType {Normal, Special, Dozer, Turret}
-    public EnemyType currentType;
     public enum EnemyState {Roam, Chase, Shoot, Stop, Retreat}
     public EnemyState currentState;
     public enum AttackMode {Spinfire, DirectHit}
@@ -21,6 +19,7 @@ public class EnemyTank : MonoBehaviour
     public float stopDistance;
     public float rotationSpeed;
     public float lookSpeed;
+    public float moveSpace;
     public Transform flankOrigin;
     public float damagePerSecond;
     public float fireDamageDuration;
@@ -66,9 +65,11 @@ public class EnemyTank : MonoBehaviour
     [SerializeField]
     Vector2 maxRoamingArea;
     float currentHealth;
+    Vector2 areaSum = Vector2.zero;
     bool stun;
     bool electrify;
     bool lookAtPlayer = true;
+    float timeToGetThere;
     List<GameObject> instEffect = new List<GameObject>();
     [SerializeField]
     List<Flank> tankFlanks = new List<Flank>();
@@ -83,11 +84,13 @@ public class EnemyTank : MonoBehaviour
     float currentSniperDistance;
     float currentShieldHealth;
     float currentTimeToRest;
+    float nearCount;
     int currentShieldDown;
     bool dead;
     bool generatedEffect;
     bool generatedSmoke;
     bool createdPosition;
+    bool createdDistance;
     bool retreating;
     GameObject smoke;
     GameObject player;
@@ -169,6 +172,31 @@ public class EnemyTank : MonoBehaviour
             NoMoreUgh();
     }
 
+    void EnemyMovement(Vector3 target)
+    {
+        transform.position = Vector2.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, moveSpace);
+
+        foreach (Collider2D near in colliders)
+        {
+            if (near.GetComponent<EnemyTank>() != null && near.transform != transform)
+            {
+                Vector2 difference = transform.position - near.transform.position;
+                difference = difference.normalized / Mathf.Abs(difference.magnitude);
+                areaSum += difference;
+                nearCount++;
+            }
+        }
+
+        if (nearCount > 0)
+        {
+            areaSum /= nearCount;
+            areaSum = areaSum.normalized * (moveSpeed / 2f);
+            transform.position = Vector2.MoveTowards(transform.position, transform.position + (Vector3)areaSum, (moveSpeed / 2f) * Time.deltaTime);
+        }
+    }
+
     void TankAI()
     {
         if (lookAtPlayer)
@@ -198,20 +226,37 @@ public class EnemyTank : MonoBehaviour
                     }
 
                     if (this.transform.position != roamingPosition && createdPosition)
-                        transform.position = Vector2.MoveTowards(transform.position, roamingPosition, moveSpeed * Time.deltaTime);
-                    if (this.transform.position == roamingPosition)
-                        createdPosition = false;
+                        EnemyMovement(roamingPosition);
+
+                    if (!createdDistance)
+                    {
+                        float distance = Vector3.Distance(transform.position, roamingPosition);
+                        timeToGetThere = distance / moveSpeed;
+                        createdDistance = true;
+                    }
+
+                    else
+                    {
+                        if (timeToGetThere <= 0 || transform.position == roamingPosition)
+                        {
+                            createdDistance = false;
+                            createdPosition = false;
+                        }
+
+                        else
+                            timeToGetThere -= Time.deltaTime;
+                    }
                     
                     lookAtPlayer = false;
                 break;
 
                 case EnemyState.Chase:
-                    transform.position = Vector2.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
+                    EnemyMovement(player.transform.position);
                     lookAtPlayer = true;
                 break;
 
                 case EnemyState.Shoot:
-                    transform.position = Vector2.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
+                    EnemyMovement(player.transform.position);
                     
                     switch(currentAttack)
                     {
@@ -256,12 +301,27 @@ public class EnemyTank : MonoBehaviour
                     }
 
                     if (this.transform.position != roamingPosition && createdPosition)
-                        transform.position = Vector2.MoveTowards(transform.position, roamingPosition, moveSpeed * Time.deltaTime);
-                    if (this.transform.position == roamingPosition)
+                        EnemyMovement(roamingPosition);
+
+                    if (!createdDistance)
                     {
-                        createdPosition = false;
-                        currentHealth += currentHealth / 2f;
-                        retreating = false;
+                        float distance = Vector3.Distance(transform.position, roamingPosition);
+                        timeToGetThere = distance / moveSpeed;
+                        createdDistance = true;
+                    }
+
+                    else
+                    {
+                        if (timeToGetThere <= 0 || transform.position == roamingPosition)
+                        {
+                            createdDistance = false;
+                            createdPosition = false;
+                            currentHealth += currentHealth / 6f;
+                            retreating = false;
+                        }
+
+                        else
+                            timeToGetThere -= Time.deltaTime;
                     }
 
                     lookAtPlayer = false;
@@ -373,7 +433,7 @@ public class EnemyTank : MonoBehaviour
                             resting = true;
                         else
                         {
-                            GameObject tmp = Instantiate(smokeExplosionEffect.gameObject, transform);
+                            GameObject tmp = Instantiate(smokeExplosionEffect.gameObject, transform.position, transform.rotation);
                         }
                     }
 
@@ -432,33 +492,8 @@ public class EnemyTank : MonoBehaviour
                 foreach (GameObject inst in instEffect)
                     inst.transform.parent = null;
 
-            if (fire)
-            {
-                for (int i = 0; i < instEffect.Count; i++)
-                {
-                    if (instEffect[i].name == "FireEffect(Clone)")
-                    {
-                        GameObject tmpF = instEffect[i];
-                        instEffect.Remove(tmpF);
-                        StartCoroutine(DestroyEffectAferTime(tmpF));
-                        break;
-                    }
-                }
-            }
-
-            if (electrify || stun)
-            {
-                for (int i = 0; i < instEffect.Count; i++)
-                {
-                    if (instEffect[i].name == "ElectricEffect(Clone)")
-                    {
-                        GameObject tmpE = instEffect[i];
-                        instEffect.Remove(tmpE);
-                        StartCoroutine(DestroyEffectAferTime(tmpE));
-                        break;
-                    }
-                }
-            }
+            foreach (GameObject gameObject in instEffect)
+                Destroy(gameObject);
 
             switch (currentRegion)
             {
@@ -470,12 +505,20 @@ public class EnemyTank : MonoBehaviour
                     gameManager.SetLimit("Shield");
                 break;
 
+                case EnemyFaction.Sniper:
+                    gameManager.SetLimit("Sniper");
+                break;
+
                 case EnemyFaction.Taser:
                     gameManager.SetLimit("Taser");
                 break;
 
                 case EnemyFaction.Medic:
                     gameManager.SetLimit("Medic");
+                break;
+
+                case EnemyFaction.Smoker:
+                    gameManager.SetLimit("Smoker");
                 break;
 
                 case EnemyFaction.BulldozerLight:
@@ -719,6 +762,9 @@ public class EnemyTank : MonoBehaviour
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(transform.position, explosionRadius);
         }
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, moveSpace);
     }
 
     void DestroyEffect(string effect)
