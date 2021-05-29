@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7633088669846928546}
   - component: {fileID: 7633088669846928547}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 7633088670661666487}
   - component: {fileID: 7633088670661666486}
   - component: {fileID: 7654977494963744987}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Pentagon
   m_TagString: Shape
   m_Icon: {fileID: 0}
@@ -198,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7633088670957607871}
   - component: {fileID: 7633088670957607870}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,7 +279,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7633088671401676494}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skin
   m_TagString: Untagged
   m_Icon: {fileID: 0}

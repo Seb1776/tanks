@@ -26,11 +26,10 @@ public class Spawner : MonoBehaviour
 	public bool turret;
 
 
-
 	//Invisible
 	GameManager gameManager;
-	float timeBtwSpawns;
-	float currentTimeBtwSpawns;
+	public float timeBtwSpawns;
+	public float currentTimeBtwSpawns;
 	float currentTimeToTurret;
 	int randIndex;
 	int limit;
@@ -70,7 +69,11 @@ public class Spawner : MonoBehaviour
 		}
 	}
 
-	public void ResetTimers() => timeBtwSpawns = Random.Range(randTimeBtwSpawns.x, randTimeBtwSpawns.y);
+	public void ResetTimers()
+	{
+		timeBtwSpawns = Random.Range(randTimeBtwSpawns.x, randTimeBtwSpawns.y);
+		gameManager.originalSpawnTimes.Add(timeBtwSpawns);
+	}
 
 	public void CountLimit()
 	{
@@ -112,6 +115,8 @@ public class Spawner : MonoBehaviour
 	{
 		if (enemies.Count != 0 || enemies != null)
 		{
+			GameObject tmpEne = null;
+
 			randIndex = Random.Range(0, limit);
 
 			if (randIndex >= 0 && randIndex <= 1)
@@ -120,7 +125,16 @@ public class Spawner : MonoBehaviour
 				{
 					for (int j = 0; j < enemySpawnLimit; j++)
 					{
-						Instantiate(enemies[randIndex], transform.position, transform.rotation);
+						tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+						foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+						{
+							flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+							flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+						}
+
+						tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+
 						gameManager.currentLimitLightHeavyEnemy++;
 					}
 				}
@@ -132,7 +146,16 @@ public class Spawner : MonoBehaviour
 				{
 					for (int j = 0; j < enemySpawnLimit; j++)
 					{
-						Instantiate(enemies[2], transform.position, transform.rotation);
+						tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+						foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+						{
+							flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+							flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+						}
+
+						tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+
 						gameManager.currentLimitShieldEnemy++;
 					}
 				}
@@ -146,7 +169,15 @@ public class Spawner : MonoBehaviour
 					{
 						for (int j = 0; j < enemySpawnLimit; j++)
 						{
-							Instantiate(enemies[3], transform.position, transform.rotation);
+							tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+							foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+							{
+								flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+								flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+							}
+
+							tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
 							gameManager.currentLimitSniperEnemy++;
 						}
 					}
@@ -158,7 +189,16 @@ public class Spawner : MonoBehaviour
 					{
 						for (int j = 0; j < enemySpawnLimit; j++)
 						{
-							Instantiate(enemies[4], transform.position, transform.rotation);
+							tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+							foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+							{
+								flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+								flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+							}
+
+							tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+
 							gameManager.currentLimitTaserEnemy++;
 						}
 					}
@@ -171,7 +211,16 @@ public class Spawner : MonoBehaviour
 				{
 					for (int j = 0; j < enemySpawnLimit; j++)
 					{
-						Instantiate(enemies[5], transform.position, transform.rotation);
+						tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+						foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+						{
+							flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+							flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+						}
+
+						tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+						
 						gameManager.currentLimitMedicEnemy++;
 					}
 				}
@@ -183,7 +232,16 @@ public class Spawner : MonoBehaviour
 				{
 					for (int j = 0; j < enemySpawnLimit; j++)
 					{
-						Instantiate(enemies[6], transform.position, transform.rotation);
+						tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+						foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+						{
+							flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+							flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+						}
+
+						tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+						
 						gameManager.currentLimitSmokerEnemy++;
 					}
 				}
@@ -195,7 +253,16 @@ public class Spawner : MonoBehaviour
 				{
 					for (int j = 0; j < enemySpawnLimit; j++)
 					{
-						Instantiate(enemies[randIndex], transform.position, transform.rotation);
+						tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+						foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+						{
+							flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+							flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+						}
+
+						tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+						
 						gameManager.currentLimitBulldozerLight++;
 					}
 				}
@@ -207,7 +274,16 @@ public class Spawner : MonoBehaviour
 				{
 					for (int j = 0; j < enemySpawnLimit; j++)
 					{
-						Instantiate(enemies[randIndex], transform.position, transform.rotation);
+						tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+						foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+						{
+							flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+							flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+						}
+
+						tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+						
 						gameManager.currentLimitBulldozerMedium++;
 					}
 				}
@@ -219,11 +295,112 @@ public class Spawner : MonoBehaviour
 				{
 					for (int j = 0; j < enemySpawnLimit; j++)
 					{
-						Instantiate(enemies[randIndex], transform.position, transform.rotation);
+						tmpEne = Instantiate(enemies[randIndex], transform.position, transform.rotation);
+
+						foreach (Flank flanks in tmpEne.GetComponent<EnemyTank>().tankFlanks)
+						{
+							flanks.modifyiedValue = AssignBalancedModifyier(gameManager.currentDifficulty.ToString());
+							flanks.value = AssignBalancedDamageValue(gameManager.currentDifficulty.ToString());
+						}
+
+						tmpEne.GetComponent<EnemyTank>().health = AssignBalancedHealth(tmpEne.GetComponent<EnemyTank>().health, gameManager.currentDifficulty.ToString());
+						
 						gameManager.currentLimitBulldozerHeavy++;
 					}
 				}
 			}
 		}
+	}
+
+	bool AssignBalancedModifyier(string difficulty)
+	{
+		switch (difficulty)
+		{
+			case "Normal": case "Hard": case "VeryHard":
+			case "Overkill": case "Mayhem": case "DeathWish":
+			case "DeathSentence":
+				return true;
+			
+			case "OneDown":
+				return false;
+		}
+
+		return false;
+	}
+
+	float AssignBalancedDamageValue(string difficulty)
+	{
+		float difficultyDivider = 1f;
+
+		switch (difficulty)
+		{
+			case "Normal":
+				difficultyDivider = 7f;
+			break;
+
+			case "Hard":
+				difficultyDivider = 6f;
+			break;
+
+			case "VeryHard":
+				difficultyDivider = 5f;
+			break;
+
+			case "Overkill":
+				difficultyDivider = 4f;
+			break;
+
+			case "Mayhem":
+				difficultyDivider = 3f;
+			break;
+
+			case "DeathWish":
+				difficultyDivider = 2f;
+			break;
+
+			case "Death Sentence":
+				difficultyDivider = 1f;
+			break;
+		}
+
+		return difficultyDivider;
+	}
+
+	float AssignBalancedHealth(float healthValue, string difficulty)
+	{
+		float difficultyDivider = 1f;
+
+		switch (difficulty)
+		{
+			case "Normal":
+				difficultyDivider = 7f;
+			break;
+
+			case "Hard":
+				difficultyDivider = 6f;
+			break;
+
+			case "VeryHard":
+				difficultyDivider = 5f;
+			break;
+
+			case "Overkill":
+				difficultyDivider = 4f;
+			break;
+
+			case "Mayhem":
+				difficultyDivider = 3f;
+			break;
+
+			case "DeathWish":
+				difficultyDivider = 2f;
+			break;
+
+			case "DeathSentence":
+				difficultyDivider = 1f;
+			break;
+		}
+
+		return healthValue / difficultyDivider;
 	}
 }

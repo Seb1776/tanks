@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3326535149873550140}
   - component: {fileID: 3326535149873550143}
   - component: {fileID: -1732176984754309826}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Sphere
   m_TagString: Shape
   m_Icon: {fileID: 0}
@@ -100,7 +100,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3326535150397599865}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3326535150563911055}
   - component: {fileID: 3326535150563911052}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -215,7 +215,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3326535151357668737}
   - component: {fileID: 3326535151357668736}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}

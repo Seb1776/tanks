@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3164441402743484720}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3164441403081974082}
   - component: {fileID: 3164441403081974081}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,7 +124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3164441403292210966}
   - component: {fileID: 3164441403292210967}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 3164441403479821628}
   - component: {fileID: 3164441403479821629}
   - component: {fileID: 5432193080148492696}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Triangle
   m_TagString: Shape
   m_Icon: {fileID: 0}

@@ -34,6 +34,8 @@ public class Flank : MonoBehaviour
     bool canShoot = true;
     bool burst;
     bool createdAmount;
+    public bool modifyiedValue;
+    public float value;
     Bullet bullet;
     float currentReloadTime;
     float currentBurstBulletPerSecond;
@@ -64,16 +66,20 @@ public class Flank : MonoBehaviour
 
     public void Shoot()
     {
+        GameObject bulletPref = null;
+
         if (canShoot)
         {
-            GameObject bulletPref = null;
-
             switch(currentFireMode)
             {
                 case FireMode.Single:
                     bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
                     AccomodateBullet(bulletPref);
                     ApplyRecoil();
+
+                    if (modifyiedValue)
+                        bulletPref.GetComponent<Bullet>().damage /= value;
+
                     canShoot = false;
                 break;
 
@@ -90,6 +96,10 @@ public class Flank : MonoBehaviour
                             AccomodateBullet(bulletPref);
                             ApplyRecoil();
                             currentFiredShots--;
+
+                            if (modifyiedValue)
+                                bulletPref.GetComponent<Bullet>().damage /= value;
+
                             autoTimeBtwShots = 0.1f;
                         }
 
@@ -133,6 +143,10 @@ public class Flank : MonoBehaviour
                 AccomodateBullet(bulletPref);
                 ApplyRecoil();
                 currentBurstBulletPerSecond = 0.4f;
+
+                if (modifyiedValue)
+                    bulletPref.GetComponent<Bullet>().damage /= value;
+
                 burstCycle++;
             }
 

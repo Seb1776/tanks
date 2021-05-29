@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyTank : MonoBehaviour
 {
     //Visible
-    public enum EnemyFaction {LightHeavy, Shield, Sniper, Taser, Medic, Smoker, BulldozerLight, BulldozerMedium, BulldozerHeavy}
+    public enum EnemyFaction {LightHeavy, Shield, Sniper, Taser, Medic, Smoker, BulldozerLight, BulldozerMedium, BulldozerHeavy, Turret}
     public EnemyFaction currentRegion;
     public enum EnemyState {Roam, Chase, Shoot, Stop, Retreat}
     public EnemyState currentState;
@@ -64,15 +64,15 @@ public class EnemyTank : MonoBehaviour
     Vector2 minRoamingArea;
     [SerializeField]
     Vector2 maxRoamingArea;
-    float currentHealth;
+    public float currentHealth;
+    public float setDamage;
     Vector2 areaSum = Vector2.zero;
     bool stun;
     bool electrify;
     bool lookAtPlayer = true;
     float timeToGetThere;
     List<GameObject> instEffect = new List<GameObject>();
-    [SerializeField]
-    List<Flank> tankFlanks = new List<Flank>();
+    public List<Flank> tankFlanks = new List<Flank>();
     float currentFireLifeTime;
     float currentFireDamageDuration;
     float currentElectricEffectDuration;
@@ -97,12 +97,17 @@ public class EnemyTank : MonoBehaviour
     GameManager gameManager;
     Vector3 roamingPosition;
 
-
-    void Start()
+    void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 
+        SetTankColor();
+        SetTankFlanks();
+    }
+
+    void Start()
+    {
         currentFireLifeTime = 1;
         currentFireDamageDuration = fireDamageDuration;
         currentElectricEffectDuration = electricEffectDuration;
@@ -141,22 +146,19 @@ public class EnemyTank : MonoBehaviour
             isShield = false;
             isSniper = false;
         }
-
-        SetTankColor();
-        SetTankFlanks();
     }
 
     void Update()
     {   
         if (!dead)
         {
-            if (!isTurret)
+            /*if (!isTurret)
                 TankAI();
             else
                 if (!resting)
                     TankAI();
                 else
-                    TurretRest();
+                    TurretRest();*/
 
             if (fire)
                 SetOnFire();
@@ -192,7 +194,7 @@ public class EnemyTank : MonoBehaviour
         if (nearCount > 0)
         {
             areaSum /= nearCount;
-            areaSum = areaSum.normalized * (moveSpeed / 2f);
+            areaSum = areaSum.normalized * (moveSpeed);
             transform.position = Vector2.MoveTowards(transform.position, transform.position + (Vector3)areaSum, (moveSpeed / 2f) * Time.deltaTime);
         }
     }

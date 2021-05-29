@@ -94,6 +94,8 @@ MonoBehaviour:
   fire: 0
   minRoamingArea: {x: 0, y: 0}
   maxRoamingArea: {x: 0, y: 0}
+  currentHealth: 0
+  setDamage: 0
   tankFlanks: []
 --- !u!50 &2185972634041489851
 Rigidbody2D:
@@ -451,6 +453,8 @@ MonoBehaviour:
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
   burstElectric: 0
+  modifyiedValue: 0
+  value: 0
 --- !u!1 &9116727730936785646
 GameObject:
   m_ObjectHideFlags: 0
@@ -980,6 +984,8 @@ MonoBehaviour:
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
   burstElectric: 0
+  modifyiedValue: 0
+  value: 0
 --- !u!1 &9116727731432324865
 GameObject:
   m_ObjectHideFlags: 0
@@ -1248,6 +1254,8 @@ MonoBehaviour:
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
   burstElectric: 0
+  modifyiedValue: 0
+  value: 0
 --- !u!1 &9116727731679059339
 GameObject:
   m_ObjectHideFlags: 0
@@ -1303,6 +1311,8 @@ MonoBehaviour:
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
   burstElectric: 0
+  modifyiedValue: 0
+  value: 0
 --- !u!1 &9116727731718596507
 GameObject:
   m_ObjectHideFlags: 0

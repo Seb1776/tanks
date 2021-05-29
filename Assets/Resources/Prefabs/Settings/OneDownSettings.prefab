@@ -46,10 +46,9 @@ MonoBehaviour:
   limitLightHeavyEnemy: 30
   limitShieldEnemy: 20
   limitSniperEnemy: 5
-  limitTaserEnemy: 5
+  limitTaserEnemy: 6
   limitMedicEnemy: 5
-  limitSmokerEnemy: 5
-  limitBulldozerLight: 5
-  limitBulldozerMedium: 5
-  limitBulldozerHeavy: 4
-  health: 2d000000320000002d0000000f000000280000002800000028000000c8000000c80000005e0100005e01000058020000bc020000bc02000052030000bc020000
+  limitSmokerEnemy: 6
+  limitBulldozerLight: 7
+  limitBulldozerMedium: 7
+  limitBulldozerHeavy: 6

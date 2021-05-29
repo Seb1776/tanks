@@ -13,7 +13,6 @@ public class DifficultySettings : MonoBehaviour
     public int limitBulldozerLight;
     public int limitBulldozerMedium;
     public int limitBulldozerHeavy;
-    public int[] health;
 
     public void ApplySettings(GameManager big)
     {
@@ -26,9 +25,5 @@ public class DifficultySettings : MonoBehaviour
         big.limitBulldozerLight = limitBulldozerLight;
         big.limitBulldozerMedium = limitBulldozerMedium;
         big.limitBulldozerHeavy = limitBulldozerHeavy;
-        
-        foreach (Spawner spawn in big.spawner)
-            for (int i = 0; i < big.spawner.Count; i++)
-                spawn.enemies[i].GetComponent<EnemyTank>().health = health[i];
     }
 }

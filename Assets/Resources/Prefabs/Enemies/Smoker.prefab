@@ -210,7 +210,7 @@ MonoBehaviour:
   damagePerSecond: 7
   fireDamageDuration: 10
   electricEffectDuration: 7
-  tankColor: {r: 0.0024287656, g: 0.6792453, b: 0, a: 1}
+  tankColor: {r: 0.48584908, g: 1, b: 0.7156042, a: 1}
   tankSkin: {fileID: 646077326661906071}
   outline: {fileID: 646077327260252426}
   dieEffect: {fileID: 3416232650015156687, guid: 2de5a1d7082e8034d8f3f9a16455155f, type: 3}
@@ -242,6 +242,8 @@ MonoBehaviour:
   fire: 0
   minRoamingArea: {x: 0, y: 0}
   maxRoamingArea: {x: 0, y: 0}
+  currentHealth: 0
+  setDamage: 0
   tankFlanks: []
 --- !u!50 &646077325693485451
 Rigidbody2D:
@@ -596,6 +598,8 @@ MonoBehaviour:
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
   burstElectric: 0
+  modifyiedValue: 0
+  value: 0
 --- !u!1 &1805622169060937844
 GameObject:
   m_ObjectHideFlags: 0

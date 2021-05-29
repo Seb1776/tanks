@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6801844527251594378}
   - component: {fileID: 6801844527251594379}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 6801844527265756959}
   - component: {fileID: 7230411499661248142}
   - component: {fileID: -3955262166665585083}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Dodecahedron
   m_TagString: Shape
   m_Icon: {fileID: 0}
@@ -204,7 +204,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6801844527332490153}
   - component: {fileID: 6801844527332490152}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -286,7 +286,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6801844527394379353}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skin
   m_TagString: Untagged
   m_Icon: {fileID: 0}

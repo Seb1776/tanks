@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5661298411774414965}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5661298412431887807}
   - component: {fileID: 5661298412431887806}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,7 +124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5661298412450934002}
   - component: {fileID: 5661298412450934003}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 5661298412817286308}
   - component: {fileID: 5661298412817286309}
   - component: {fileID: -4038215202334986315}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Octagon
   m_TagString: Shape
   m_Icon: {fileID: 0}

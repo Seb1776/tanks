@@ -17,10 +17,13 @@ public class Music : MonoBehaviour
     [Header("Wave Music Properties")]
     public Track currentTrack;
     public Light2D backgroundLight;
+    public float bpm;
+    public bool exactVersion;
 
 
     //Invisible
     string starter;
+    bool visualize;
     AudioClip control;
     AudioClip buildup;
     AudioClip assault;
@@ -39,13 +42,7 @@ public class Music : MonoBehaviour
     float currentBuildupIniDuration;
     float assaultIniDuration;
     float currentAssaultIniDuration;
-    float updateStep = .1f;
-    int sampleDataLength = 1024 * 2;
-    float currentUpdateTime = 0f;
-    float clipLoudness;
-    float[] clipSampleData;
-    int fullLength;
-    float currentSongLength;
+    float currentBPSDuration;
     AudioSource source;
     GameManager gameManager;
 
@@ -53,7 +50,6 @@ public class Music : MonoBehaviour
     {
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         source = GetComponent<AudioSource>();
-        clipSampleData = new float[sampleDataLength];
 
         FindTracks();
     }
@@ -62,32 +58,27 @@ public class Music : MonoBehaviour
     {
         MusicBehaviour();
 
-        /**if (gameManager.currentStage == GameManager.WaveStages.Assault)
-            VisualizeLights();*/
+        if (visualize)
+            VisualizeLights();
+        else
+        {
+            if (backgroundLight.intensity < 1f)
+                backgroundLight.intensity += Time.deltaTime;
+            
+            backgroundLight.color = Color.white;
+        }
     }
 
     void VisualizeLights()
     {
-        currentUpdateTime += Time.deltaTime;
+        float baseValue = Mathf.Cos(((Time.time * Mathf.PI) * (bpm / 60f)) % Mathf.PI);
 
-        if (currentUpdateTime >= updateStep)
-        {
-            currentUpdateTime = 0f;
-            source.clip.GetData(clipSampleData, source.timeSamples);
-            clipLoudness = 0f;
+        if (exactVersion)
+            backgroundLight.intensity = Mathf.RoundToInt(Mathf.Abs(baseValue));
+        else
+            backgroundLight.intensity = Mathf.Abs(baseValue);
 
-            foreach (var sample in clipSampleData)
-            {
-                clipLoudness += Mathf.Abs(sample);
-            }
-
-            clipLoudness /= sampleDataLength;
-        }
-
-        backgroundLight.intensity = clipLoudness * 2;
-
-        /*if (backgroundLight.intensity > 1f)
-            backgroundLight.intensity = 1f;*/
+        backgroundLight.color = Color.red;
     }
 
     void FindTracks()
@@ -152,6 +143,7 @@ public class Music : MonoBehaviour
                         source.clip = controlIni;
                         source.loop = false;
                         source.Play();
+                        visualize = false;
                         playedControlIni = true;
                     }
 
@@ -185,6 +177,7 @@ public class Music : MonoBehaviour
                         source.loop = true;
                         source.Play();
                         currentControlIniDuration = controlIniDuration;
+                        visualize = false;
                         playedControl = true;
                     }
                 }
@@ -259,6 +252,7 @@ public class Music : MonoBehaviour
                                     source.loop = true;
                                     source.Play();
                                     currentAssaultIniDuration = assaultIniDuration;
+                                    visualize = true;
                                     playedAssault = true;
                                 }
                             }
@@ -276,6 +270,7 @@ public class Music : MonoBehaviour
                         source.clip = assault;
                         source.loop = true;
                         source.Play();
+                        visualize = true;
                         playedAssault = true;
                     }
                 }

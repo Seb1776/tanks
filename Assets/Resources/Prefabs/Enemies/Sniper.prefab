@@ -184,6 +184,8 @@ MonoBehaviour:
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
   burstElectric: 0
+  modifyiedValue: 1
+  value: 7
 --- !u!1 &3523255928834329013
 GameObject:
   m_ObjectHideFlags: 0
@@ -542,7 +544,7 @@ MonoBehaviour:
   currentRegion: 2
   currentState: 0
   currentAttack: 1
-  health: 20
+  health: 10
   score: 200
   moveSpeed: 2
   attackDistance: 200
@@ -587,6 +589,8 @@ MonoBehaviour:
   fire: 0
   minRoamingArea: {x: 0, y: 0}
   maxRoamingArea: {x: 0, y: 0}
+  currentHealth: 0
+  setDamage: 0
   tankFlanks:
   - {fileID: 3523255928414107934}
 --- !u!50 &8270881731507767331

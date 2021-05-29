@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     public Vector2 randBuildupStageDuration;
     public Vector2 randAssaultStageDuration;
     public bool canSpawn;
+    public bool settedTime;
     public int shapeLimit;
     public int winnedWaves;
     public float timeBtwShapeSpawn;
@@ -42,9 +43,11 @@ public class GameManager : MonoBehaviour
     public Image assaultBannerBack;
     public Text assaultPhaseText;
     public Text clockText;
+    public Text difficultyName;
     public Image[] corners;
     public Text scoreText;
     public Text enemyBannerFaction;
+    public GameObject crossHair;
 
 
     //Invisible
@@ -85,6 +88,8 @@ public class GameManager : MonoBehaviour
     float currentControlStageDuration;
     float currentBuildupStageDuration;
     float currentAssaultStageDuration;
+    float colorSmoothTime;
+    public List<float> originalSpawnTimes = new List<float>();
     string totalClocks;
     Transform tmpPos;
     Tank player;
@@ -95,9 +100,9 @@ public class GameManager : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Tank>();
         music = GameObject.FindGameObjectWithTag("MusicManager").GetComponent<Music>();
 
-        currentControlStageDuration = Random.Range(randControlStageDuration.x, randControlStageDuration.y);
-        currentBuildupStageDuration = Random.Range(randBuildupStageDuration.x, randBuildupStageDuration.y);
-        currentAssaultStageDuration = Random.Range(randAssaultStageDuration.x, randAssaultStageDuration.y);
+        currentControlStageDuration = controlStageDuration = Random.Range(randControlStageDuration.x, randControlStageDuration.y);
+        currentBuildupStageDuration = buildupStageDuration = Random.Range(randBuildupStageDuration.x, randBuildupStageDuration.y);
+        currentAssaultStageDuration = assaultStageDuration = Random.Range(randAssaultStageDuration.x, randAssaultStageDuration.y);
 
         originalAssaultBannerColor = assaultBannerBack.color;
 
@@ -110,6 +115,8 @@ public class GameManager : MonoBehaviour
 
         if (currentDifficulty != Difficulty.OneDown)
             ShowWave();
+        
+        Cursor.visible = false;
     }
 
     void Update()
@@ -125,6 +132,9 @@ public class GameManager : MonoBehaviour
         else
             foreach(Spawner spawn in spawner)
                 spawn.canSpawn = false;
+        
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        crossHair.transform.position = mousePos;
     }
 
     void UI()
@@ -168,11 +178,12 @@ public class GameManager : MonoBehaviour
                     difficultySettings[0].ApplySettings(this);
                 }
                 
+                difficultyName.text = "HARD";
                 difficultyBanner.SetBool("hard", true);
             break;
 
             case Difficulty.VeryHard:
-                enemyFactionIndex = 3;
+                enemyFactionIndex = 2;
 
                 foreach (Spawner spawn in spawner)
                 {
@@ -180,12 +191,13 @@ public class GameManager : MonoBehaviour
                     difficultySettings[1].ApplySettings(this);
                 }
                 
+                difficultyName.text = "VERY HARD";
                 difficultyBanner.SetBool("hard", true);
                 difficultyBanner.SetBool("veryhard", true);
             break;
 
             case Difficulty.Overkill:
-                enemyFactionIndex = 4;
+                enemyFactionIndex = 3;
 
                 foreach (Spawner spawn in spawner)
                 {
@@ -193,13 +205,14 @@ public class GameManager : MonoBehaviour
                     difficultySettings[2].ApplySettings(this);
                 }
                 
+                difficultyName.text = "OVERKILL";
                 difficultyBanner.SetBool("hard", true);
                 difficultyBanner.SetBool("veryhard", true);
                 difficultyBanner.SetBool("overkill", true);
             break;
 
             case Difficulty.Mayhem:
-                enemyFactionIndex = 5;
+                enemyFactionIndex = 4;
 
                 foreach (Spawner spawn in spawner)
                 {
@@ -208,6 +221,7 @@ public class GameManager : MonoBehaviour
                     difficultySettings[3].ApplySettings(this);
                 }
 
+                difficultyName.text = "MAYHEM";
                 difficultyBanner.SetBool("hard", true);
                 difficultyBanner.SetBool("veryhard", true);
                 difficultyBanner.SetBool("overkill", true);
@@ -215,14 +229,15 @@ public class GameManager : MonoBehaviour
             break;
 
             case Difficulty.DeathWish:
-                enemyFactionIndex = 6;
+                enemyFactionIndex = 5;
 
                 foreach (Spawner spawn in spawner)
                 {
                     spawn.bulldozerLight = spawn.smokerEnemy = spawn.medicEnemy = spawn.shieldEnemy = spawn.sniperEnemy = spawn.taserEnemy = true;
                     difficultySettings[4].ApplySettings(this);
                 }
-            
+
+                difficultyName.text = "DEATH WISH";
                 difficultyBanner.SetBool("hard", true);
                 difficultyBanner.SetBool("veryhard", true);
                 difficultyBanner.SetBool("overkill", true);
@@ -231,14 +246,15 @@ public class GameManager : MonoBehaviour
             break;
 
             case Difficulty.DeathSentence:
-                enemyFactionIndex = 7;
+                enemyFactionIndex = 6;
 
                 foreach (Spawner spawn in spawner)
                 {
-                    spawn.bulldozerMedium = spawn.bulldozerLight = spawn.smokerEnemy = spawn.medicEnemy = spawn.shieldEnemy = spawn.sniperEnemy = spawn.taserEnemy = true;
+                    spawn.bulldozerHeavy = spawn.bulldozerMedium = spawn.bulldozerLight = spawn.smokerEnemy = spawn.medicEnemy = spawn.shieldEnemy = spawn.sniperEnemy = spawn.taserEnemy = true;
                     difficultySettings[5].ApplySettings(this);
                 }
                 
+                difficultyName.text = "DEATH SENTENCE";
                 difficultyBanner.SetBool("hard", true);
                 difficultyBanner.SetBool("veryhard", true);
                 difficultyBanner.SetBool("overkill", true);
@@ -256,6 +272,7 @@ public class GameManager : MonoBehaviour
                     difficultySettings[6].ApplySettings(this);
                 }
 
+                difficultyName.text = "ONE DOWN";
                 difficultyBanner.SetBool("hard", true);
                 difficultyBanner.SetBool("veryhard", true);
                 difficultyBanner.SetBool("overkill", true);
@@ -264,7 +281,7 @@ public class GameManager : MonoBehaviour
                 difficultyBanner.SetBool("deathsentence", true);
                 difficultyBanner.SetBool("onedown", true);
 
-                ShowWave(true);
+                ShowWave();
                 engaged = true;
             break;
         }
@@ -273,18 +290,22 @@ public class GameManager : MonoBehaviour
             spawn.CountLimit();
     }
 
-    void ShowWave(bool oneDown = false)
+    void ShowWave()
     {   
-        if (!oneDown)
-        {
-            enemyBannerFaction.text = "/// " + waveIncomingUnits[enemyFactionIndex] + " UNITS INCOMING ///";
+        if (currentDifficulty != Difficulty.OneDown)
+        {   
+            if (currentDifficulty != Difficulty.DeathSentence)
+                enemyBannerFaction.text = "/// " + waveIncomingUnits[enemyFactionIndex] + " UNITS INCOMING ///";
+            else
+                enemyBannerFaction.text = "/// " + waveIncomingUnits[enemyFactionIndex] + " ///";
+
             StartCoroutine(HideWave(5.9f));
             enemyBanner.SetBool("show", true);
         }
 
         else
         {
-            enemyBannerFaction.text = "/// ONE DOWN ENGAGED, NO MORE HEALTH REGEN ///";
+            enemyBannerFaction.text = "/// ONE DOWN ENGAGED, NO MORE HEALTH REGEN FROM KILLS ///";
             StartCoroutine(HideWave(5.9f));
             enemyBanner.SetBool("show", true);
         }
@@ -299,13 +320,15 @@ public class GameManager : MonoBehaviour
     void WinWave()
     {
         winnedWaves++;
+
+        Debug.Log("called WinWave");
         
         switch (currentDifficulty.ToString())
         {
             case "Normal":
-                if (currentWinnedWaves < wavesRequiredToProgress[1])
+                if (currentWinnedWaves <= wavesRequiredToProgress[0])
                     currentWinnedWaves++;
-
+                
                 else
                 {
                     currentWinnedWaves = 0;
@@ -314,17 +337,18 @@ public class GameManager : MonoBehaviour
                         spawn.shieldEnemy = true;
                     
                     enemyFactionIndex++;
-
-                    difficultySettings[0].ApplySettings(this);
+                
                     ShowWave();
 
+                    difficultyName.text = "HARD";
                     difficultyBanner.SetBool("hard", true);
+                    difficultySettings[0].ApplySettings(this);
                     currentDifficulty = Difficulty.Hard;
                 }
             break;
 
             case "Hard":
-                if (currentWinnedWaves < wavesRequiredToProgress[2])
+                if (currentWinnedWaves <= wavesRequiredToProgress[1])
                     currentWinnedWaves++;
 
                 else
@@ -339,16 +363,17 @@ public class GameManager : MonoBehaviour
                     
                     enemyFactionIndex++;
 
-                    difficultySettings[1].ApplySettings(this);
                     ShowWave();
 
+                    difficultyName.text = "VERY HARD";
                     difficultyBanner.SetBool("veryhard", true);
+                    difficultySettings[1].ApplySettings(this);
                     currentDifficulty = Difficulty.VeryHard;
                 }
             break;
 
             case "VeryHard":
-                if (currentWinnedWaves < wavesRequiredToProgress[3])
+                if (currentWinnedWaves <= wavesRequiredToProgress[2])
                     currentWinnedWaves++;
 
                 else
@@ -360,16 +385,17 @@ public class GameManager : MonoBehaviour
                     
                     enemyFactionIndex++;
 
-                    difficultySettings[2].ApplySettings(this);
                     ShowWave();
 
+                    difficultyName.text = "OVERKILL";
                     difficultyBanner.SetBool("overkill", true);
+                    difficultySettings[2].ApplySettings(this);
                     currentDifficulty = Difficulty.Overkill;
                 }
             break;
 
             case "Overkill":
-                if (currentWinnedWaves < wavesRequiredToProgress[4])
+                if (currentWinnedWaves <= wavesRequiredToProgress[3])
                     currentWinnedWaves++;
 
                 else
@@ -381,16 +407,17 @@ public class GameManager : MonoBehaviour
                     
                     enemyFactionIndex++;
 
-                    difficultySettings[3].ApplySettings(this);
                     ShowWave();
                     
+                    difficultyName.text = "MAYHEM";
                     difficultyBanner.SetBool("mayhem", true);
+                    difficultySettings[3].ApplySettings(this);
                     currentDifficulty = Difficulty.Mayhem;
                 }
             break;
 
             case "Mayhem":
-                if (currentWinnedWaves < wavesRequiredToProgress[5])
+                if (currentWinnedWaves <= wavesRequiredToProgress[4])
                     currentWinnedWaves++;
 
                 else
@@ -405,16 +432,17 @@ public class GameManager : MonoBehaviour
 
                     enemyFactionIndex++;
 
-                    difficultySettings[4].ApplySettings(this);
                     ShowWave();
 
+                    difficultyName.text = "DEATH WISH";
                     difficultyBanner.SetBool("deathwish", true);
+                    difficultySettings[4].ApplySettings(this);
                     currentDifficulty = Difficulty.DeathWish;
                 }
             break;
 
             case "DeathWish":
-                if (currentWinnedWaves < wavesRequiredToProgress[6])
+                if (currentWinnedWaves < wavesRequiredToProgress[5])
                     currentWinnedWaves++;
 
                 else
@@ -425,17 +453,17 @@ public class GameManager : MonoBehaviour
                         spawn.bulldozerMedium = true;
 
                     enemyFactionIndex++;
-
-                    difficultySettings[5].ApplySettings(this);
                     ShowWave();
 
+                    difficultyName.text = "DEATH SENTENCE";
                     difficultyBanner.SetBool("deathsentence", true);
+                    difficultySettings[5].ApplySettings(this);
                     currentDifficulty = Difficulty.DeathSentence;
                 }
             break;
 
             case "DeathSentence":
-                if (currentWinnedWaves < wavesRequiredToProgress[7])
+                if (currentWinnedWaves <= wavesRequiredToProgress[6])
                     currentWinnedWaves++;
 
                 else
@@ -447,10 +475,11 @@ public class GameManager : MonoBehaviour
                     
                     enemyFactionIndex++;
 
-                    difficultySettings[6].ApplySettings(this);
                     ShowWave();
 
+                    difficultyName.text = "ONE DOWN";
                     difficultyBanner.SetBool("onedown", true);
+                    difficultySettings[6].ApplySettings(this);
                     currentDifficulty = Difficulty.OneDown;
                 }
             break;
@@ -458,8 +487,7 @@ public class GameManager : MonoBehaviour
             case "OneDown":
                 if(!engaged)
                 {
-                    ShowWave(true);
-                    difficultySettings[7].ApplySettings(this);
+                    ShowWave();
                     engaged = true;
                 }
 
@@ -471,6 +499,8 @@ public class GameManager : MonoBehaviour
             foreach (Spawner spawn in spawner)
                 spawn.CountLimit();
         
+        originalSpawnTimes.Clear();
+
         foreach (Spawner spawn in spawner)
             spawn.ResetTimers();
     }
@@ -605,14 +635,20 @@ public class GameManager : MonoBehaviour
                 {
                     currentControlStageDuration = controlStageDuration;
                     currentStage = WaveStages.Buildup;
+                    settedTime = false;
                 }
 
                 else
                 {
-                    if (canSpawn)
-                        canSpawn = false;
-
                     currentControlStageDuration -= Time.deltaTime;
+
+                    if (!settedTime)
+                    {
+                        for (int i = 0; i < originalSpawnTimes.Count; i++)
+                            spawner[i].currentTimeBtwSpawns = originalSpawnTimes[i] * 4f;
+                        
+                        settedTime = true;
+                    }
                 }
 
             break;
@@ -622,28 +658,46 @@ public class GameManager : MonoBehaviour
                 {
                     currentBuildupStageDuration = buildupStageDuration;
                     currentStage = WaveStages.Assault;
+                    settedTime = false;
                 }
 
                 else
+                {
                     currentBuildupStageDuration -= Time.deltaTime;
+
+                    if (!settedTime)
+                    {
+                        for (int i = 0; i < originalSpawnTimes.Count; i++)
+                            spawner[i].currentTimeBtwSpawns = originalSpawnTimes[i] * 2f;
+                        
+                        settedTime = true;
+                    }
+                }
             break;
 
             case WaveStages.Assault:
                 if (currentAssaultStageDuration <= 0)
                 {
-                    currentAssaultStageDuration = assaultStageDuration;
                     music.ResetMusic();
-                    WinWave();
+                    settedTime = false;
                     currentStage = WaveStages.Control;
-                    canSpawn = false;
+                    currentAssaultStageDuration = assaultStageDuration;
+                    Debug.Log(currentAssaultStageDuration);
+                    Debug.Log(assaultStageDuration);
+                    WinWave();
                 }
 
                 else
                 {
-                    if (!canSpawn)
-                        canSpawn = true;
-
                     currentAssaultStageDuration -= Time.deltaTime;
+
+                    if (!settedTime)
+                    {
+                        for (int i = 0; i < originalSpawnTimes.Count; i++)
+                            spawner[i].currentTimeBtwSpawns = originalSpawnTimes[i];
+                        
+                        settedTime = true;
+                    }
                 }
             break;
         }
