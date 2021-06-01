@@ -1,10 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyTank : MonoBehaviour
 {
     //Visible
+    [Header ("Debug")]
+    public bool showDebugGizmos;
+    [SerializeField]
+    bool obstacleInBetween;
     public enum EnemyFaction {LightHeavy, Shield, Sniper, Taser, Medic, Smoker, BulldozerLight, BulldozerMedium, BulldozerHeavy, Turret}
     public EnemyFaction currentRegion;
     public enum EnemyState {Roam, Chase, Shoot, Stop, Retreat}
@@ -59,6 +64,8 @@ public class EnemyTank : MonoBehaviour
 
 
     //Invisible
+    Vector3[] path;
+    int targetIndex;
     public bool fire;
     [SerializeField]
     Vector2 minRoamingArea;
@@ -96,14 +103,20 @@ public class EnemyTank : MonoBehaviour
     GameObject player;
     GameManager gameManager;
     Vector3 roamingPosition;
+    NavMeshAgent agent;
 
     void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        agent = GetComponent<NavMeshAgent>();
+
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
 
         SetTankColor();
         SetTankFlanks();
+        AssignValuesToNavMesh();
     }
 
     void Start()
@@ -152,13 +165,15 @@ public class EnemyTank : MonoBehaviour
     {   
         if (!dead)
         {
-            /*if (!isTurret)
+            if (!isTurret)
                 TankAI();
             else
                 if (!resting)
                     TankAI();
                 else
-                    TurretRest();*/
+                    TurretRest();
+            
+            agent.SetDestination(player.transform.position);
 
             if (fire)
                 SetOnFire();
@@ -174,9 +189,56 @@ public class EnemyTank : MonoBehaviour
             NoMoreUgh();
     }
 
+    public void OnDrawGizmos() 
+    {   
+        if (showDebugGizmos)
+        {
+            if (canHeal)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(transform.position, healRadius);
+            }
+
+            if (canExplode)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireSphere(transform.position, explosionRadius);
+            }
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, moveSpace);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, attackDistance);
+            player = GameObject.FindGameObjectWithTag("Player");
+            Gizmos.color = Color.black;
+
+            if (player != null)
+            {
+                RaycastHit2D hit2D = Physics2D.Linecast(transform.position, player.transform.position);
+
+                if (Vector2.Distance(transform.position, player.transform.position) < attackDistance)
+                {
+                    if (hit2D.transform.CompareTag("Player"))
+                        Debug.DrawLine(transform.position, player.transform.position);
+
+                    else
+                        Debug.DrawLine(transform.position, hit2D.point);
+                }
+            }
+        }
+	}
+
+    void AssignValuesToNavMesh()
+    {
+        agent.speed = moveSpeed;
+        agent.stoppingDistance = stopDistance;
+        agent.radius += .5f;
+    }
+
     void EnemyMovement(Vector3 target)
     {
-        transform.position = Vector2.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+        //transform.position = Vector2.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
 
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, moveSpace);
 
@@ -197,18 +259,36 @@ public class EnemyTank : MonoBehaviour
             areaSum = areaSum.normalized * (moveSpeed);
             transform.position = Vector2.MoveTowards(transform.position, transform.position + (Vector3)areaSum, (moveSpeed / 2f) * Time.deltaTime);
         }
+
+        RaycastHit2D hit2D = Physics2D.Linecast(transform.position, player.transform.position);
+
+        if (hit2D.transform.CompareTag("Player") || hit2D.transform.CompareTag("Bullet") || hit2D.transform.CompareTag("EnemyBullet") || hit2D.transform.CompareTag("Shield"))
+        {
+            LookAtTarget(player.transform.position);
+            obstacleInBetween = false;
+        }
+
+        else
+        {
+            LookAtTarget(hit2D.point);
+            obstacleInBetween = true;
+        }
+        
+    }
+
+    void LookAtTarget(Vector3 target)
+    {
+        Vector3 direction = target - transform.position;
+        direction.Normalize();
+        float zAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion lookRot = Quaternion.Euler(0f, 0f, zAngle);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRot, lookSpeed * Time.deltaTime);
     }
 
     void TankAI()
     {
         if (lookAtPlayer)
-        {
-            Vector3 direction = player.transform.position - transform.position;
-            direction.Normalize();
-            float zAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            Quaternion lookRot = Quaternion.Euler(0f, 0f, zAngle);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRot, lookSpeed * Time.deltaTime);
-        }
+            LookAtTarget(player.transform.position);
 
         if (CheckForDamageEffect())
         {
@@ -220,7 +300,7 @@ public class EnemyTank : MonoBehaviour
 
             switch (currentState)
             {
-                case EnemyState.Roam:
+                /*case EnemyState.Roam:
                     if (!createdPosition)
                     {
                         roamingPosition = new Vector3(Random.Range(minRoamingArea.x, maxRoamingArea.x), Random.Range(minRoamingArea.y, maxRoamingArea.y));
@@ -250,35 +330,37 @@ public class EnemyTank : MonoBehaviour
                     }
                     
                     lookAtPlayer = false;
-                break;
+                break;*/
 
                 case EnemyState.Chase:
                     EnemyMovement(player.transform.position);
-                    lookAtPlayer = true;
                 break;
 
                 case EnemyState.Shoot:
                     EnemyMovement(player.transform.position);
-                    
-                    switch(currentAttack)
-                    {
-                        case AttackMode.Spinfire:
-                            lookAtPlayer = false;
 
-                            transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
-                        break;
+                    if (!obstacleInBetween)
+                    { 
+                        switch(currentAttack)
+                        {
+                            case AttackMode.Spinfire:
+                                lookAtPlayer = false;
 
-                        case AttackMode.DirectHit:
-                            lookAtPlayer = true;
-                        break;
+                                transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
+                            break;
+
+                            case AttackMode.DirectHit:
+                                lookAtPlayer = true;
+                            break;
+                        }
+
+                        foreach(Flank flanks in tankFlanks)
+                            flanks.Shoot();
                     }
-
-                    foreach(Flank flanks in tankFlanks)
-                        flanks.Shoot();
                 break;
 
                 case EnemyState.Stop:
-                    switch(currentAttack)
+                    /*switch(currentAttack)
                     {
                         case AttackMode.Spinfire:
                             lookAtPlayer = false;
@@ -292,11 +374,11 @@ public class EnemyTank : MonoBehaviour
                     }
 
                     foreach(Flank flanks in tankFlanks)
-                        flanks.Shoot();
+                        flanks.Shoot();*/
                 break;
 
                 case EnemyState.Retreat:
-                    if (!createdPosition)
+                    /*if (!createdPosition)
                     {
                         roamingPosition = new Vector3(Random.Range(minRoamingArea.x, maxRoamingArea.x), Random.Range(minRoamingArea.y, maxRoamingArea.y));
                         createdPosition = true;
@@ -326,7 +408,7 @@ public class EnemyTank : MonoBehaviour
                             timeToGetThere -= Time.deltaTime;
                     }
 
-                    lookAtPlayer = false;
+                    lookAtPlayer = false;*/
                 break;
             }
 
@@ -335,21 +417,11 @@ public class EnemyTank : MonoBehaviour
                 currentState = EnemyState.Chase;
 
                 if (Vector3.Distance(transform.position, player.transform.position) < attackDistance)
-                {
                     currentState = EnemyState.Shoot;
-
-                    if (Vector3.Distance(transform.position, player.transform.position) < stopDistance)
-                    {
-                        currentState = EnemyState.Stop;
-                    }
-                }
 
                 else
                     currentState = EnemyState.Chase;
             }
-
-            else
-                currentState = EnemyState.Roam;
         }
 
         if (currentHealth <= 0)
@@ -749,24 +821,6 @@ public class EnemyTank : MonoBehaviour
 
         else
             currentTimeBtwHeals -= Time.deltaTime;
-    }
-
-    void OnDrawGizmos()
-    {   
-        if (canHeal)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, healRadius);
-        }
-
-        if (canExplode)
-        {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(transform.position, explosionRadius);
-        }
-
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, moveSpace);
     }
 
     void DestroyEffect(string effect)

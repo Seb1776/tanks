@@ -11,6 +11,7 @@ TagManager:
   - GameManager
   - MusicManager
   - Shape
+  - Collisionable
   layers:
   - Default
   - TransparentFX

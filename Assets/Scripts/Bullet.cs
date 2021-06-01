@@ -40,6 +40,7 @@ public class Bullet : MonoBehaviour
     bool destroying;
     bool fire;
     bool createdEffect;
+    bool destroyedTrail;
     float currentFireLifeTime;
     float currentSmokeTimeBtwDamages;
     float currentFireDamageDuration;
@@ -82,7 +83,13 @@ public class Bullet : MonoBehaviour
     }
 
     void DestroyBullet(bool onContact)
-    {   
+    {
+        if (!destroyedTrail)
+        {
+            Destroy(gameObject.transform.GetChild(0).transform.GetChild(2).gameObject);
+            destroyedTrail = true;
+        }
+
         if (currentType == BulletType.Smoke || onContact)
         {
             skin.SetActive(false);
@@ -257,7 +264,7 @@ public class Bullet : MonoBehaviour
             }
         }
 
-        if (other.transform.CompareTag("Shield") && !this.CompareTag("EnemyBullet"))
+        if ((other.transform.CompareTag("Shield") && !this.CompareTag("EnemyBullet")) || other.transform.CompareTag("Collisionable"))
             destroying = true;
         
         if (other.transform.CompareTag("Shape") && !this.CompareTag("EnemyBullet"))
