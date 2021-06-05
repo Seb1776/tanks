@@ -14,6 +14,8 @@ public class Flank : MonoBehaviour
     public Transform firePoint;
     public float reloadTime;
     public float recoil;
+    public float impulseShake;
+    public float timeShake;
     [Header("Burst Fire Mode Properties")]
     public float bulletsPerReload;
     [Header ("Auto Fire Magazine")]
@@ -75,6 +77,10 @@ public class Flank : MonoBehaviour
                 case FireMode.Single:
                     bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
                     AccomodateBullet(bulletPref);
+
+                    if (currentPorter != FlankPorter.Enemy)
+                        GameManager.Instance.GenerateScreenShake(impulseShake, timeShake);
+
                     ApplyRecoil();
 
                     if (modifyiedValue)
@@ -94,6 +100,10 @@ public class Flank : MonoBehaviour
                         {
                             bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
                             AccomodateBullet(bulletPref);
+
+                            if (currentPorter != FlankPorter.Enemy)
+                                GameManager.Instance.GenerateScreenShake(impulseShake, timeShake);
+                            
                             ApplyRecoil();
                             currentFiredShots--;
 
@@ -141,6 +151,10 @@ public class Flank : MonoBehaviour
             {
                 GameObject bulletPref = Instantiate(bullet.gameObject, firePoint.position, firePoint.rotation);
                 AccomodateBullet(bulletPref);
+
+                if (currentPorter != FlankPorter.Enemy)
+                    GameManager.Instance.GenerateScreenShake(impulseShake, timeShake);
+
                 ApplyRecoil();
                 currentBurstBulletPerSecond = 0.4f;
 

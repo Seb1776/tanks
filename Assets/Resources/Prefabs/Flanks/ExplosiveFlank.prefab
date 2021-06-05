@@ -133,10 +133,14 @@ MonoBehaviour:
   firePoint: {fileID: 4301761246099813630}
   reloadTime: 18
   recoil: 0
+  impulseShake: 2.5
+  timeShake: 0.1
   bulletsPerReload: 0
   bulletsInMag: 0
   burstBulletElectric: {x: 2, y: 4}
   burstElectric: 0
+  modifyiedValue: 0
+  value: 0
 --- !u!1 &4301761245583097567
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
+using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
     //Visible
+    public static GameManager Instance {get; private set;}
     public enum WaveStages {Control, Buildup, Assault}
     [Header("Wave Properties")]
     public WaveStages currentStage;
@@ -48,6 +50,16 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public Text enemyBannerFaction;
     public GameObject crossHair;
+    public Image explosionCooldown;
+
+    [Header("Camera")]
+    [SerializeField]
+    CinemachineVirtualCamera virtualCamera;
+    public float shootIntensityShake;
+    public float explosionIntensityShake;
+    public float explosionTimerShake;
+    public float shootTimerShake;
+    public bool explosiveShake;
 
 
     //Invisible
@@ -61,25 +73,46 @@ public class GameManager : MonoBehaviour
     List<string> difficulties = new List<string>();
     Color originalAssaultBannerColor;
     Color originalCornerColor;
+    Color tmp;
+    [HideInInspector]
     public int limitLightHeavyEnemy;
+    [HideInInspector]
     public int limitShieldEnemy;
+    [HideInInspector]
     public int limitSniperEnemy;
+    [HideInInspector]
     public int limitTaserEnemy;
+    [HideInInspector]
     public int limitMedicEnemy;
+    [HideInInspector]
     public int limitSmokerEnemy;
+    [HideInInspector]
     public int limitBulldozerLight;
+    [HideInInspector]
     public int limitBulldozerMedium;
+    [HideInInspector]
     public int limitBulldozerHeavy;
+    [HideInInspector]
     public int limitTurret;
+    [HideInInspector]
     public int currentLimitLightHeavyEnemy;
+    [HideInInspector]
     public int currentLimitShieldEnemy;
+    [HideInInspector]
     public int currentLimitSniperEnemy;
+    [HideInInspector]
     public int currentLimitTaserEnemy;
+    [HideInInspector]
     public int currentLimitMedicEnemy;
+    [HideInInspector]
     public int currentLimitSmokerEnemy;
+    [HideInInspector]
     public int currentLimitBulldozerLight;
+    [HideInInspector]
     public int currentLimitBulldozerMedium;
+    [HideInInspector]
     public int currentLimitBulldozerHeavy;
+    [HideInInspector]
     public int currentLimitTurret;
     int currentShapeLimit;
     int currentWinnedWaves;
@@ -88,12 +121,21 @@ public class GameManager : MonoBehaviour
     float currentControlStageDuration;
     float currentBuildupStageDuration;
     float currentAssaultStageDuration;
-    float colorSmoothTime;
+    float shakeTimer;
+    float startingIntensity;
+    float shakeTimerTotal;
+    bool shakeScreen;
+    [HideInInspector]
     public List<float> originalSpawnTimes = new List<float>();
     string totalClocks;
     Transform tmpPos;
     Tank player;
     Music music;
+
+    void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
@@ -117,6 +159,7 @@ public class GameManager : MonoBehaviour
             ShowWave();
         
         Cursor.visible = false;
+        tmp = explosionCooldown.color;
     }
 
     void Update()
@@ -135,6 +178,59 @@ public class GameManager : MonoBehaviour
         
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         crossHair.transform.position = mousePos;
+    
+        if (shakeScreen)
+        {
+            if (shakeTimer <= 0f)
+            {
+                CinemachineBasicMultiChannelPerlin channelPerlin = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+                channelPerlin.m_AmplitudeGain = Mathf.Lerp(startingIntensity, 0f, 1 - (shakeTimer / shakeTimerTotal));
+            }
+
+            else
+                shakeTimer -= Time.deltaTime;
+        }
+
+        if (music.exploded)
+        {
+            if (explosionCooldown.IsActive())
+            {
+                if (tmp.a <= 0f)
+                {
+                    explosionCooldown.gameObject.SetActive(false);
+                    tmp.a = 0.85f;
+                }
+
+                else
+                {
+                    tmp.a -= Time.deltaTime / 10f;
+                }
+            }
+
+            explosionCooldown.color = tmp;
+        }
+    }
+
+    public IEnumerator TriggerExplosion(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        explosionCooldown.gameObject.SetActive(true);
+
+        if (music.exploded)
+            tmp.a = 0.75f;
+
+        music.RequestExplosionEffect();
+    }
+
+    public void GenerateScreenShake(float intensity, float time)
+    {
+        CinemachineBasicMultiChannelPerlin channelPerlin = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+
+        channelPerlin.m_AmplitudeGain = intensity;
+        shakeTimer = shakeTimerTotal = time;
+        startingIntensity = intensity;
+        shakeScreen = true;
     }
 
     void UI()

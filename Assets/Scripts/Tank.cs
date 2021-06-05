@@ -13,6 +13,7 @@ public class Tank : MonoBehaviour
     public float damagePerSecond;
     public float electricEffectDuration;
     public float grazeTime;
+    public int maxEnemiesTargetedBy;
     public Color tankColor;
     public SpriteRenderer tankSkin;
     public SpriteRenderer outline;

@@ -82,7 +82,7 @@ MonoBehaviour:
   currentType: 3
   speed: 5
   lifeTime: 10
-  impactForce: 1800
+  impactForce: 1000
   damage: 500
   decreaseFactor: 2
   fireEffect: {fileID: 0}
@@ -91,6 +91,8 @@ MonoBehaviour:
   explosionRadius: 3
   closeExplosionDamage: 400
   closeExplosionImpactForce: 1800
+  impulseShake: 6.5
+  timeShake: 1.5
   damagePerSecond: 0
   fireDamageDuration: 0
   piercableEnemiesUntilDeath: 0

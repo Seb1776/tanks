@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Experimental.Rendering.Universal;
 
 public class Music : MonoBehaviour
@@ -19,11 +20,14 @@ public class Music : MonoBehaviour
     public Light2D backgroundLight;
     public float bpm;
     public bool exactVersion;
+    public bool exploded;
+    public AudioClip explosionSFX;
 
 
     //Invisible
     string starter;
     bool visualize;
+    bool playedExplosionEffect;
     AudioClip control;
     AudioClip buildup;
     AudioClip assault;
@@ -43,13 +47,19 @@ public class Music : MonoBehaviour
     float assaultIniDuration;
     float currentAssaultIniDuration;
     float currentBPSDuration;
+    [SerializeField]
+    AudioSource explosionEffect;
     AudioSource source;
+    AudioLowPassFilter lowPassFilter;
     GameManager gameManager;
 
     void Start()
     {
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         source = GetComponent<AudioSource>();
+        lowPassFilter = GetComponent<AudioLowPassFilter>();
+
+        lowPassFilter.cutoffFrequency = 350f;
 
         FindTracks();
     }
@@ -66,6 +76,46 @@ public class Music : MonoBehaviour
                 backgroundLight.intensity += Time.deltaTime;
             
             backgroundLight.color = Color.white;
+        }
+
+        if (exploded)
+        {
+            lowPassFilter.enabled = true;
+
+            if (lowPassFilter.cutoffFrequency >= 12000f)
+            {
+                lowPassFilter.cutoffFrequency = 350f;
+                lowPassFilter.enabled = false;
+                explosionEffect.volume = 1f;
+                explosionEffect.Stop();
+                exploded = false;
+                playedExplosionEffect = false;
+            }
+
+            else
+            {
+                lowPassFilter.cutoffFrequency += Time.deltaTime * 1000f;
+                explosionEffect.volume -= Time.deltaTime / 10f;
+            }
+        }
+    }
+
+    public void RequestExplosionEffect()
+    {
+        if (!exploded)
+            exploded = true;
+
+        else
+        {
+            lowPassFilter.cutoffFrequency = 350f;
+            explosionEffect.volume = 1f;
+        }
+        
+        if (!playedExplosionEffect)
+        {
+            explosionEffect.clip = explosionSFX;
+            explosionEffect.Play();
+            playedExplosionEffect = true;
         }
     }
 

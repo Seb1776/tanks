@@ -20,14 +20,14 @@ public class Shape : MonoBehaviour
     bool safe;
     float currentHealth;
     GameManager gameManager;
-    Collider2D collider;
+    Collider2D collisions;
 
     void Awake()
     {
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        collider = GetComponent<Collider2D>();
+        collisions = GetComponent<Collider2D>();
         skin.SetActive(false);
-        collider.enabled = false;
+        collisions.enabled = false;
     }
 
     void Start()
@@ -39,7 +39,7 @@ public class Shape : MonoBehaviour
             if (CheckForSpawn())
             {
                 skin.SetActive(true);
-                collider.enabled = true;
+                collisions.enabled = true;
                 safe = true;
             }
         }
@@ -52,9 +52,9 @@ public class Shape : MonoBehaviour
 
     bool CheckForSpawn()
     {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, spawnSpace);
+        Collider2D[] collisionss = Physics2D.OverlapCircleAll(transform.position, spawnSpace);
 
-        foreach (Collider2D near in colliders)
+        foreach (Collider2D near in collisionss)
         {
             if (near.GetComponent<Shape>() != null && (near.GetComponent<Tank>() != null || near.GetComponent<EnemyTank>() != null) && near.gameObject != this.gameObject)
             {
@@ -81,7 +81,7 @@ public class Shape : MonoBehaviour
     {
         if (currentHealth <= 0)
         {
-            collider.enabled = false;
+            collisions.enabled = false;
             gameManager.DestroyShape(this.gameObject, score);
         }
             

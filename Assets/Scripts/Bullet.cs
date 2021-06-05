@@ -21,6 +21,8 @@ public class Bullet : MonoBehaviour
     public float explosionRadius;
     public float closeExplosionDamage;
     public float closeExplosionImpactForce;
+    public float impulseShake;
+    public float timeShake;
     [Header("Fire/Explosion Bullet Properties")]
     public float damagePerSecond;
     public float fireDamageDuration;
@@ -46,11 +48,13 @@ public class Bullet : MonoBehaviour
     float currentFireDamageDuration;
     float currentSmokeDuration;
     Tank player;
+    GameManager gameManager;
 
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Tank>();
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         currentLifeTime = lifeTime;
         currentFireDamageDuration = fireDamageDuration;
         currentSmokeDuration = smokeDuration;
@@ -224,8 +228,7 @@ public class Bullet : MonoBehaviour
             switch (currentType)
             {
                 case BulletType.Explosive:
-                    GameObject prefBullet = Instantiate(explosionEffect, transform);
-                    prefBullet.transform.parent = null;
+                    GameObject prefBullet = Instantiate(explosionEffect, transform.position, transform.rotation);
 
                     Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
 
@@ -234,9 +237,12 @@ public class Bullet : MonoBehaviour
                         if (affected.GetComponent<Tank>() != null)
                         {
                             affected.GetComponent<Tank>().MakeDamage(closeExplosionDamage);
-                            affected.GetComponent<Rigidbody2D>().AddForce(-transform.right * closeExplosionImpactForce);
+                            affected.GetComponent<Rigidbody2D>().AddForce(transform.right * closeExplosionImpactForce);
                         }
                     }
+
+                    GameManager.Instance.GenerateScreenShake(impulseShake, timeShake);
+                    StartCoroutine(gameManager.TriggerExplosion(.15f));
 
                     destroying = true;
                 break;

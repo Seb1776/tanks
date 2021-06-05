@@ -10,6 +10,8 @@ public class EnemyTank : MonoBehaviour
     public bool showDebugGizmos;
     [SerializeField]
     bool obstacleInBetween;
+    [SerializeField]
+    bool playerLost;
     public enum EnemyFaction {LightHeavy, Shield, Sniper, Taser, Medic, Smoker, BulldozerLight, BulldozerMedium, BulldozerHeavy, Turret}
     public EnemyFaction currentRegion;
     public enum EnemyState {Roam, Chase, Shoot, Stop, Retreat}
@@ -23,8 +25,11 @@ public class EnemyTank : MonoBehaviour
     public float recognizeDistance;
     public float stopDistance;
     public float rotationSpeed;
+    public float wanderTime;
     public float lookSpeed;
     public float moveSpace;
+    public float wanderRadius;
+    public float timeToGetLost;
     public Transform flankOrigin;
     public float damagePerSecond;
     public float fireDamageDuration;
@@ -47,7 +52,7 @@ public class EnemyTank : MonoBehaviour
     public LayerMask playerMask;
     [Header("Shield Properties")]
     public bool isShield;
-    public float timeLookingAt;
+    public Transform shieldDetector;
     [Header("Turret Properties")]
     public bool isTurret;
     public float shieldHealth;
@@ -77,7 +82,8 @@ public class EnemyTank : MonoBehaviour
     bool stun;
     bool electrify;
     bool lookAtPlayer = true;
-    float timeToGetThere;
+    float currentWanderTime;
+    float currentTimeGettingLost;
     List<GameObject> instEffect = new List<GameObject>();
     public List<Flank> tankFlanks = new List<Flank>();
     float currentFireLifeTime;
@@ -98,7 +104,6 @@ public class EnemyTank : MonoBehaviour
     bool generatedSmoke;
     bool createdPosition;
     bool createdDistance;
-    bool retreating;
     GameObject smoke;
     GameObject player;
     GameManager gameManager;
@@ -144,7 +149,6 @@ public class EnemyTank : MonoBehaviour
 
         else if (isShield)
         {
-            currentTimeLookingAt = timeLookingAt;
             canHeal = false;
             isSniper = false;
             isTurret = false;
@@ -172,8 +176,6 @@ public class EnemyTank : MonoBehaviour
                     TankAI();
                 else
                     TurretRest();
-            
-            agent.SetDestination(player.transform.position);
 
             if (fire)
                 SetOnFire();
@@ -215,17 +217,42 @@ public class EnemyTank : MonoBehaviour
 
             if (player != null)
             {
-                RaycastHit2D hit2D = Physics2D.Linecast(transform.position, player.transform.position);
+                RaycastHit2D hit2D;
+
+                if (!isShield)
+                    hit2D = Physics2D.Linecast(transform.position, player.transform.position);
+                else
+                    hit2D = Physics2D.Linecast(shieldDetector.position, player.transform.position);
 
                 if (Vector2.Distance(transform.position, player.transform.position) < attackDistance)
                 {
-                    if (hit2D.transform.CompareTag("Player"))
-                        Debug.DrawLine(transform.position, player.transform.position);
+                    if (hit2D.collider != null)
+                    {
+                        if (hit2D.transform.CompareTag("Player") || hit2D.transform.CompareTag("Bullet") || hit2D.transform.CompareTag("EnemyBullet") || hit2D.transform.CompareTag("Shield"))
+                        {   
+                            if (!isShield)
+                                Debug.DrawLine(transform.position, player.transform.position);
+                            else
+                                Debug.DrawLine(shieldDetector.position, player.transform.position);
+                        }
 
-                    else
-                        Debug.DrawLine(transform.position, hit2D.point);
+                        else
+                        {
+                            if (!isShield)
+                                Debug.DrawLine(transform.position, hit2D.point);
+                            else
+                                Debug.DrawLine(shieldDetector.position, hit2D.point);
+                        }
+                    }
                 }
             }
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, wanderRadius);
+            Gizmos.color = new Color(255f, 64f, 0f, 1f);
+            Gizmos.DrawWireSphere(transform.position, recognizeDistance);
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireSphere(transform.position, stopDistance);
         }
 	}
 
@@ -233,18 +260,15 @@ public class EnemyTank : MonoBehaviour
     {
         agent.speed = moveSpeed;
         agent.stoppingDistance = stopDistance;
-        agent.radius += .5f;
     }
 
     void EnemyMovement(Vector3 target)
     {
-        //transform.position = Vector2.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
-
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, moveSpace);
 
         foreach (Collider2D near in colliders)
         {
-            if (near.GetComponent<EnemyTank>() != null && near.transform != transform)
+            if (near.GetComponent<EnemyTank>() != null && near.transform != transform && !near.CompareTag("Collisionable"))
             {
                 Vector2 difference = transform.position - near.transform.position;
                 difference = difference.normalized / Mathf.Abs(difference.magnitude);
@@ -256,24 +280,37 @@ public class EnemyTank : MonoBehaviour
         if (nearCount > 0)
         {
             areaSum /= nearCount;
-            areaSum = areaSum.normalized * (moveSpeed);
+            areaSum = areaSum.normalized * moveSpeed;
             transform.position = Vector2.MoveTowards(transform.position, transform.position + (Vector3)areaSum, (moveSpeed / 2f) * Time.deltaTime);
         }
 
-        RaycastHit2D hit2D = Physics2D.Linecast(transform.position, player.transform.position);
+        RaycastHit2D hit2D;
 
-        if (hit2D.transform.CompareTag("Player") || hit2D.transform.CompareTag("Bullet") || hit2D.transform.CompareTag("EnemyBullet") || hit2D.transform.CompareTag("Shield"))
-        {
-            LookAtTarget(player.transform.position);
-            obstacleInBetween = false;
-        }
-
+        if (!isShield)
+            hit2D = Physics2D.Linecast(transform.position, player.transform.position);
         else
-        {
-            LookAtTarget(hit2D.point);
-            obstacleInBetween = true;
+            hit2D = Physics2D.Linecast(shieldDetector.position, player.transform.position);
+
+        if (currentState == EnemyState.Shoot)
+        {   
+            if (hit2D.collider != null)
+            {
+                if (hit2D.transform.CompareTag("Player") || hit2D.transform.CompareTag("Bullet") || hit2D.transform.CompareTag("EnemyBullet") || hit2D.transform.CompareTag("Shield"))
+                {
+                    LookAtTarget(player.transform.position);
+                    obstacleInBetween = false;
+                }
+
+                else
+                {
+                    LookAtTarget(hit2D.point);
+                    obstacleInBetween = true;
+                }
+            }
         }
         
+        else
+            obstacleInBetween = false;
     }
 
     void LookAtTarget(Vector3 target)
@@ -292,48 +329,45 @@ public class EnemyTank : MonoBehaviour
 
         if (CheckForDamageEffect())
         {
-            if (retreating)
-                currentState = EnemyState.Retreat;
-            
             if (canHeal)
                 MedicBehaviour();
 
             switch (currentState)
             {
-                /*case EnemyState.Roam:
-                    if (!createdPosition)
+                case EnemyState.Roam:
+                    if (currentWanderTime <= 0f)
                     {
-                        roamingPosition = new Vector3(Random.Range(minRoamingArea.x, maxRoamingArea.x), Random.Range(minRoamingArea.y, maxRoamingArea.y));
-                        createdPosition = true;
-                    }
-
-                    if (this.transform.position != roamingPosition && createdPosition)
-                        EnemyMovement(roamingPosition);
-
-                    if (!createdDistance)
-                    {
-                        float distance = Vector3.Distance(transform.position, roamingPosition);
-                        timeToGetThere = distance / moveSpeed;
-                        createdDistance = true;
+                        Vector2 newPos = RandomNavPosition(transform.position, wanderRadius, -1);
+                        agent.SetDestination(newPos);
+                        EnemyMovement(newPos);
+                        currentWanderTime = wanderTime;
                     }
 
                     else
-                    {
-                        if (timeToGetThere <= 0 || transform.position == roamingPosition)
-                        {
-                            createdDistance = false;
-                            createdPosition = false;
-                        }
-
-                        else
-                            timeToGetThere -= Time.deltaTime;
-                    }
-                    
-                    lookAtPlayer = false;
-                break;*/
+                        currentWanderTime -= Time.deltaTime;
+                break;
 
                 case EnemyState.Chase:
                     EnemyMovement(player.transform.position);
+                    agent.SetDestination(player.transform.position);
+
+                    if (!playerLost)
+                    {
+                        if (obstacleInBetween)
+                        {
+                            currentTimeGettingLost += Time.deltaTime;
+
+                            if (currentTimeGettingLost >= timeToGetLost)
+                            {
+                                playerLost = true;
+                                currentTimeGettingLost = timeToGetLost;
+                            }
+                        }
+
+                        else
+                            if (currentTimeGettingLost > 0f)
+                                currentTimeGettingLost -= Time.deltaTime;
+                    }
                 break;
 
                 case EnemyState.Shoot:
@@ -413,23 +447,49 @@ public class EnemyTank : MonoBehaviour
             }
 
             if (Vector3.Distance(transform.position, player.transform.position) < recognizeDistance)
-            {
-                currentState = EnemyState.Chase;
+            {   
+                if (!playerLost)
+                {
+                    currentState = EnemyState.Chase;
 
-                if (Vector3.Distance(transform.position, player.transform.position) < attackDistance)
-                    currentState = EnemyState.Shoot;
+                    if (Vector3.Distance(transform.position, player.transform.position) < attackDistance)
+                        currentState = EnemyState.Shoot;
+                }
 
                 else
-                    currentState = EnemyState.Chase;
+                {
+                    if (currentWanderTime <= 0)
+                    {
+
+                        playerLost = false;
+                    }
+
+                    else
+                    {
+                        currentWanderTime -= Time.deltaTime * 4;
+                        currentState = EnemyState.Roam;
+                    }
+                }
+            }
+
+            else
+            {
+                currentState = EnemyState.Roam;
             }
         }
 
         if (currentHealth <= 0)
             dead = true;
+    }
 
-        if (!isTurret)       
-            if (currentHealth <= health / 7)
-                retreating = true;
+    Vector2 RandomNavPosition(Vector2 origin, float dst, int layerMask)
+    {
+        Vector2 randDirection = Random.insideUnitCircle * dst;
+        randDirection += origin;
+
+        NavMeshHit navHit;
+        NavMesh.SamplePosition(randDirection, out navHit, dst, layerMask);
+        return navHit.position;
     }
 
     bool CheckForDamageEffect()
@@ -544,9 +604,11 @@ public class EnemyTank : MonoBehaviour
             {   
                 ParticleSystem tempEffect = Instantiate(dieEffect, transform.position, transform.rotation);
 
-                if (!isTurret)   
-                    tempEffect.startColor = tankColor;
-
+                if (!isTurret)
+                {
+                    ParticleSystem.MainModule psMain = tempEffect.main;
+                    psMain.startColor = tankColor;
+                }
 
                 generatedEffect = true;
             }
